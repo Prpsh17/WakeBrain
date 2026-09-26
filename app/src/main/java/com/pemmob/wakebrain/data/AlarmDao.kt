@@ -14,11 +14,11 @@ interface AlarmDao {
     fun getAllAlarms(): Flow<List<Alarm>>
 
     @Insert
-    suspend fun insertAlarm(alarm: Alarm)
+    suspend fun insertAlarm(alarm: Alarm): Long
 
     @Update
-    suspend fun updateAlarm(alarm: Alarm)
+    suspend fun updateAlarm(alarm: Alarm): Int
 
     @Delete
-    suspend fun deleteAlarm(alarm: Alarm)
+    suspend fun deleteAlarm(alarm: Alarm): Int
 }

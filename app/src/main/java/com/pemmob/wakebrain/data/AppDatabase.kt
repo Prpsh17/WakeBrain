@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Question::class], version = 1, exportSchema = false)
+@Database(entities = [Question::class, Alarm::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun questionDao(): QuestionDao
@@ -67,9 +67,40 @@ abstract class AppDatabase : RoomDatabase() {
                                 optionC = "Gunung Fuji",
                                 correctAnswer = "Gunung Everest"
                             )
-                            // Anda bisa menambahkan soal lainnya di sini
                         )
                         dao.insertAll(initialQuestions)
+
+                        val alarmDao = database.alarmDao()
+                        val initialAlarms = listOf(
+                            Alarm(
+                                hour = 7,
+                                minute = 0,
+                                isActive = true,
+                                puzzleType = "Matematika",
+                                difficulty = "EASY",
+                                label = "Kuliah Pagi",
+                                days = "Sen • Sel • Rab • Kam • Jum"
+                            ),
+                            Alarm(
+                                hour = 5,
+                                minute = 30,
+                                isActive = true,
+                                puzzleType = "Trivia",
+                                difficulty = "MEDIUM",
+                                label = "Bangun Subuh",
+                                days = "Setiap Hari (Sen - Min)"
+                            ),
+                            Alarm(
+                                hour = 9,
+                                minute = 0,
+                                isActive = false,
+                                puzzleType = "Matematika",
+                                difficulty = "EASY",
+                                label = "Weekend Santai",
+                                days = "Sab • Min"
+                            )
+                        )
+                        initialAlarms.forEach { alarmDao.insertAlarm(it) }
                     }
                 }
             }

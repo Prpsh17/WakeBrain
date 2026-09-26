@@ -10,6 +10,8 @@ sealed interface PuzzleUiState {
     // 2. Soal Matematika aktif di layar
     data class MathActive(
         val problem: MathProblem,
+        val stage: Int = 1,
+        val totalStages: Int = 2,
         val isError: Boolean = false,
         val errorMessage: String? = null
     ) : PuzzleUiState
@@ -18,6 +20,8 @@ sealed interface PuzzleUiState {
     data class TriviaActive(
         val question: Question,
         val shuffledOptions: List<String>, // Opsi A, B, C diacak agar tidak mudah ditebak
+        val stage: Int = 2,
+        val totalStages: Int = 2,
         val isError: Boolean = false,
         val errorMessage: String? = null
     ) : PuzzleUiState

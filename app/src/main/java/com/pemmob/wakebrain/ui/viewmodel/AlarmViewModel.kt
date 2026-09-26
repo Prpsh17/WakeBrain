@@ -25,9 +25,32 @@ class AlarmViewModel(private val repository: AlarmRepository) : ViewModel() {
         }
     }
 
-    fun addAlarm(hour: Int, minute: Int, puzzleType: String) {
+    fun addAlarm(
+        hour: Int,
+        minute: Int,
+        puzzleType: String = "Matematika",
+        difficulty: String = "EASY",
+        label: String = "Alarm Pagi",
+        days: String = "Sen • Sel • Rab • Kam • Jum"
+    ) {
         viewModelScope.launch {
-            repository.insert(Alarm(hour = hour, minute = minute, isActive = true, puzzleType = puzzleType))
+            repository.insert(
+                Alarm(
+                    hour = hour,
+                    minute = minute,
+                    isActive = true,
+                    puzzleType = puzzleType,
+                    difficulty = difficulty,
+                    label = label,
+                    days = days
+                )
+            )
+        }
+    }
+
+    fun updateAlarm(alarm: Alarm) {
+        viewModelScope.launch {
+            repository.update(alarm)
         }
     }
 
