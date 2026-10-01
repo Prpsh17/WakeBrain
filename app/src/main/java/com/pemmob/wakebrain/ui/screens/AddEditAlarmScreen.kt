@@ -1,5 +1,6 @@
 package com.pemmob.wakebrain.ui.screens
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,20 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.data.Alarm
-import com.pemmob.wakebrain.ui.theme.DarkError
-import com.pemmob.wakebrain.ui.theme.DarkErrorContainer
-import com.pemmob.wakebrain.ui.theme.DarkOnErrorContainer
-import com.pemmob.wakebrain.ui.theme.DarkPrimary
-import com.pemmob.wakebrain.ui.theme.DarkPrimaryContainer
-import com.pemmob.wakebrain.ui.theme.DarkSurface
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainer
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerHigh
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerHighest
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerLow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +73,17 @@ fun AddEditAlarmScreen(
     var difficulty by remember { mutableStateOf(alarm?.difficulty ?: "EASY") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, h: Int, m: Int ->
+            hour = h
+            minute = m
+            isAm = h < 12
+        },
+        hour, minute, true
+    )
+
     val allDays = listOf("Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
     val selectedDays = remember {
         mutableStateListOf<String>().apply {
@@ -97,7 +100,7 @@ fun AddEditAlarmScreen(
     if (showDeleteDialog && alarm != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            containerColor = DarkSurfaceContainerHigh,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -107,7 +110,7 @@ fun AddEditAlarmScreen(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(DarkErrorContainer.copy(alpha = 0.4f)),
+                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "⚠️", fontSize = 18.sp)
@@ -134,8 +137,8 @@ fun AddEditAlarmScreen(
                         onDelete(alarm)
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkErrorContainer,
-                        contentColor = DarkOnErrorContainer
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
                     Text("Hapus", fontWeight = FontWeight.Bold)
@@ -173,13 +176,13 @@ fun AddEditAlarmScreen(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Hapus Alarm",
-                                tint = DarkError
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -188,7 +191,7 @@ fun AddEditAlarmScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(DarkSurface)
+                .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -197,7 +200,7 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainerLow)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
             ) {
                 Row(
                     modifier = Modifier
@@ -227,7 +230,7 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Column(
                     modifier = Modifier
@@ -250,7 +253,7 @@ fun AddEditAlarmScreen(
                         // AM/PM Toggle Pill
                         Surface(
                             shape = CircleShape,
-                            color = DarkSurfaceContainerHighest
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest
                         ) {
                             Row(modifier = Modifier.padding(2.dp)) {
                                 Surface(
@@ -262,7 +265,7 @@ fun AddEditAlarmScreen(
                                                 if (hour >= 12) hour -= 12
                                             }
                                         },
-                                    color = if (isAm) DarkPrimaryContainer else Color.Transparent,
+                                    color = if (isAm) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
                                     shape = CircleShape
                                 ) {
                                     Text(
@@ -282,7 +285,7 @@ fun AddEditAlarmScreen(
                                                 if (hour < 12) hour += 12
                                             }
                                         },
-                                    color = if (!isAm) DarkPrimaryContainer else Color.Transparent,
+                                    color = if (!isAm) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
                                     shape = CircleShape
                                 ) {
                                     Text(
@@ -299,18 +302,20 @@ fun AddEditAlarmScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Big Hour : Minute Display
+                    // Big Hour : Minute Display (Clickable)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.clickable { timePickerDialog.show() }.padding(8.dp)
                     ) {
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = DarkSurfaceContainerHigh,
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
+                            val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
                             Text(
-                                text = String.format("%02d", hour),
+                                text = String.format("%02d", displayHour),
                                 style = MaterialTheme.typography.displayLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -327,7 +332,7 @@ fun AddEditAlarmScreen(
 
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = DarkSurfaceContainerHigh,
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
                             Text(
@@ -341,66 +346,7 @@ fun AddEditAlarmScreen(
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
-
-                    // Stepper Adjustment Buttons (-15m, +15m, +1h, -1h)
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Surface(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable {
-                                    minute = (minute - 15 + 60) % 60
-                                },
-                            shape = CircleShape,
-                            color = DarkSurfaceContainerHighest
-                        ) {
-                            Text(
-                                text = "-15m",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
-
-                        Surface(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable {
-                                    minute = (minute + 15) % 60
-                                },
-                            shape = CircleShape,
-                            color = DarkSurfaceContainerHighest
-                        ) {
-                            Text(
-                                text = "+15m",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
-
-                        Surface(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable {
-                                    hour = (hour + 1) % 24
-                                    isAm = (hour < 12)
-                                },
-                            shape = CircleShape,
-                            color = DarkSurfaceContainerHighest
-                        ) {
-                            Text(
-                                text = "+1 Jam",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
-                    }
+                    Text(text = "Ketuk waktu di atas untuk mengatur", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -408,7 +354,7 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -436,7 +382,7 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -475,7 +421,7 @@ fun AddEditAlarmScreen(
                                         if (isSelected) selectedDays.remove(day) else selectedDays.add(day)
                                     },
                                 shape = CircleShape,
-                                color = if (isSelected) DarkPrimaryContainer else DarkSurfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
@@ -495,7 +441,7 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -530,7 +476,7 @@ fun AddEditAlarmScreen(
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable { puzzleType = type },
                                 shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) DarkPrimaryContainer else DarkSurfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
                             ) {
                                 Text(
                                     text = if (type == "Matematika") "🔢 Matematika" else "🧩 Trivia Pengetahuan",
@@ -558,7 +504,7 @@ fun AddEditAlarmScreen(
                                     .clip(CircleShape)
                                     .clickable { difficulty = lvl },
                                 shape = CircleShape,
-                                color = if (isSelected) DarkPrimaryContainer else DarkSurfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
                             ) {
                                 Text(
                                     text = lvl,
@@ -605,7 +551,7 @@ fun AddEditAlarmScreen(
                         .height(48.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = DarkError
+                        contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
                     Text(

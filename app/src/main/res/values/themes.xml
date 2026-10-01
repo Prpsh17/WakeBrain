@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.WakeBrain" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.WakeBrain" parent="android:Theme.Material.Light.NoActionBar">
+
+        <!-- 1. Background UNGU untuk Android versi lama (di bawah Android 12) -->
+        <item name="android:windowBackground">#8B5CF6</item>
+        <item name="android:colorBackground">#8B5CF6</item>
+
+        <!-- 2. Background UNGU KHUSUS untuk Android 12 ke atas (API 31+) -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#8B5CF6</item>
+
+        <!-- 3. Icon di tengah splash screen (mengambil icon launcher yang sudah kamu ganti) -->
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@mipmap/ic_launcher</item>
+
+        <!-- 4. Status bar dan navigation bar UNGU -->
+        <item name="android:statusBarColor">#8B5CF6</item>
+        <item name="android:navigationBarColor">#8B5CF6</item>
+
+    </style>
+
 </resources>

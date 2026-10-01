@@ -50,17 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.data.Alarm
-import com.pemmob.wakebrain.ui.theme.DarkError
-import com.pemmob.wakebrain.ui.theme.DarkErrorContainer
-import com.pemmob.wakebrain.ui.theme.DarkOnErrorContainer
-import com.pemmob.wakebrain.ui.theme.DarkPrimary
-import com.pemmob.wakebrain.ui.theme.DarkPrimaryContainer
-import com.pemmob.wakebrain.ui.theme.DarkSurface
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainer
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerHigh
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerHighest
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerLow
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerLowest
 import com.pemmob.wakebrain.ui.viewmodel.PuzzleUiState
 
 @Composable
@@ -74,7 +63,7 @@ fun ActiveAlarmScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkSurface)
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -94,7 +83,7 @@ fun ActiveAlarmScreen(
         // Status Badge: WAKE UP!
         Surface(
             shape = CircleShape,
-            color = DarkErrorContainer.copy(alpha = 0.85f),
+            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f),
             modifier = Modifier.alpha(pulseAlpha)
         ) {
             Row(
@@ -107,7 +96,7 @@ fun ActiveAlarmScreen(
                     text = "WAKE UP!",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = DarkOnErrorContainer
+                    color = MaterialTheme.colorScheme.onErrorContainer
                 )
                 Box(
                     modifier = Modifier
@@ -169,7 +158,7 @@ fun ActiveAlarmScreen(
                     modifier = Modifier
                         .size(16.dp)
                         .clip(CircleShape)
-                        .background(if (stage >= 1) DarkPrimary else DarkSurfaceContainerHighest),
+                        .background(if (stage >= 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest),
                     contentAlignment = Alignment.Center
                 ) {
                     if (stage > 1) {
@@ -188,7 +177,7 @@ fun ActiveAlarmScreen(
                         .width(36.dp)
                         .height(3.dp)
                         .clip(CircleShape)
-                        .background(if (stage > 1) DarkPrimary else DarkSurfaceContainerHigh)
+                        .background(if (stage > 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh)
                 )
 
                 // Circle 2
@@ -196,7 +185,7 @@ fun ActiveAlarmScreen(
                     modifier = Modifier
                         .size(16.dp)
                         .clip(CircleShape)
-                        .background(if (stage >= 2) DarkPrimary else DarkSurfaceContainerHighest),
+                        .background(if (stage >= 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest),
                     contentAlignment = Alignment.Center
                 ) {
                     if (stage == 2) {
@@ -212,7 +201,7 @@ fun ActiveAlarmScreen(
 
             Surface(
                 shape = CircleShape,
-                color = DarkSurfaceContainerHigh
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Text(
                     text = "Tantangan $stage dari $totalStages • ${if (uiState is PuzzleUiState.TriviaActive) "Pengetahuan Umum" else "Matematika"}",
@@ -253,7 +242,7 @@ fun ActiveAlarmScreen(
             is PuzzleUiState.Error -> {
                 Text(
                     text = "Gagal memuat soal: ${uiState.message}",
-                    color = DarkError,
+                    color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -302,7 +291,7 @@ fun MathChallengeView(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainerLow)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(
             modifier = Modifier
@@ -319,12 +308,12 @@ fun MathChallengeView(
                 Text(
                     text = "🔢 Aktivasi Kognitif",
                     style = MaterialTheme.typography.labelMedium,
-                    color = DarkPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 Surface(
                     shape = RoundedCornerShape(4.dp),
-                    color = DarkSurfaceContainerHigh
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     Text(
                         text = "Level ${state.stage}",
@@ -354,7 +343,7 @@ fun MathChallengeView(
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = if (state.isError) DarkErrorContainer.copy(alpha = 0.35f) else DarkSurfaceContainerLowest
+                color = if (state.isError) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surfaceContainerLow
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -372,7 +361,7 @@ fun MathChallengeView(
                                 text = typedValue,
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = if (state.isError) DarkError else DarkPrimary
+                                color = if (state.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                             )
                             // Blinking cursor
                             val transition = rememberInfiniteTransition(label = "cursor")
@@ -391,7 +380,7 @@ fun MathChallengeView(
                                     .width(2.dp)
                                     .height(24.dp)
                                     .alpha(cursorAlpha)
-                                    .background(DarkPrimary)
+                                    .background(MaterialTheme.colorScheme.primary)
                             )
                         }
                     }
@@ -407,7 +396,7 @@ fun MathChallengeView(
                     Text(
                         text = state.errorMessage ?: "Jawaban belum tepat, coba hitung lagi!",
                         style = MaterialTheme.typography.labelSmall,
-                        color = DarkError,
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -454,7 +443,7 @@ fun MathChallengeView(
                                         }
                                     },
                                 shape = RoundedCornerShape(10.dp),
-                                color = if (key == "C" || key == "⌫") DarkSurfaceContainerHighest else DarkSurfaceContainer
+                                color = if (key == "C" || key == "⌫") MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainer
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
@@ -505,7 +494,7 @@ fun TriviaChallengeView(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainerLow)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(
             modifier = Modifier
@@ -516,13 +505,13 @@ fun TriviaChallengeView(
             // Header Category Badge
             Surface(
                 shape = CircleShape,
-                color = DarkSurfaceContainerHighest,
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 modifier = Modifier.align(Alignment.Start)
             ) {
                 Text(
                     text = "🌍 Geografi & Pengetahuan Umum",
                     style = MaterialTheme.typography.labelSmall,
-                    color = DarkPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                 )
@@ -557,7 +546,7 @@ fun TriviaChallengeView(
                             .clip(RoundedCornerShape(12.dp))
                             .clickable { selectedOption = option },
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isSelected) DarkPrimaryContainer else DarkSurfaceContainerHigh
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
                     ) {
                         Row(
                             modifier = Modifier
@@ -573,7 +562,7 @@ fun TriviaChallengeView(
                                 Surface(
                                     modifier = Modifier.size(32.dp),
                                     shape = CircleShape,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else DarkSurfaceContainerHighest
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Text(
@@ -613,7 +602,7 @@ fun TriviaChallengeView(
                     Text(
                         text = state.errorMessage ?: "Jawaban salah! Alarm masih berbunyi.",
                         style = MaterialTheme.typography.labelSmall,
-                        color = DarkError,
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
