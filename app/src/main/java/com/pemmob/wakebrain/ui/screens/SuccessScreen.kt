@@ -34,13 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pemmob.wakebrain.ui.theme.DarkPrimary
-import com.pemmob.wakebrain.ui.theme.DarkPrimaryContainer
-import com.pemmob.wakebrain.ui.theme.DarkSuccess
-import com.pemmob.wakebrain.ui.theme.DarkSurface
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainer
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerHigh
-import com.pemmob.wakebrain.ui.theme.DarkSurfaceContainerLow
 
 @Composable
 fun SuccessScreen(
@@ -49,7 +42,7 @@ fun SuccessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkSurface)
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,7 +53,7 @@ fun SuccessScreen(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(DarkPrimaryContainer),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -85,7 +78,7 @@ fun SuccessScreen(
         Text(
             text = "2 quiz selesai. Alarm dimatikan.",
             style = MaterialTheme.typography.titleMedium,
-            color = DarkPrimary,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold
         )
 
@@ -94,7 +87,7 @@ fun SuccessScreen(
         // Time and Streak Badge
         Surface(
             shape = CircleShape,
-            color = DarkSurfaceContainerHigh
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
@@ -117,7 +110,7 @@ fun SuccessScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainer)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Column(
                 modifier = Modifier
@@ -149,7 +142,7 @@ fun SuccessScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .background(DarkSurfaceContainerLow)
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow)
                         .padding(12.dp),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
@@ -169,18 +162,25 @@ fun SuccessScreen(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Akurasi Logika",
+                            text = "Akurasi Jawaban",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "100%",
+                            text = "Benar 80% (Salah 20%)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = DarkSuccess
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Saran: Tetap pertahankan, atau kurangi waktu tidur larut malam agar otak lebih segar!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
             }
         }
 
@@ -190,7 +190,7 @@ fun SuccessScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurfaceContainerLow)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
         ) {
             Row(
                 modifier = Modifier
