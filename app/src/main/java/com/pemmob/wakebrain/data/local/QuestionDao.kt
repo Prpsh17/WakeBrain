@@ -1,8 +1,9 @@
-package com.pemmob.wakebrain.data
+package com.pemmob.wakebrain.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.pemmob.wakebrain.data.model.Question
 
 @Dao
 interface QuestionDao {

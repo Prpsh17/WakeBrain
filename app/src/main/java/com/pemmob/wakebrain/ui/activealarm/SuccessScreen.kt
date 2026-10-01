@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.screens
+package com.pemmob.wakebrain.ui.activealarm
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.screens
+package com.pemmob.wakebrain.ui.alarm
 
 import android.app.TimePickerDialog
 import androidx.compose.foundation.background
@@ -53,7 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pemmob.wakebrain.data.Alarm
+import com.pemmob.wakebrain.data.model.Alarm
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

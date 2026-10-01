@@ -1,7 +1,7 @@
 package com.pemmob.wakebrain.data.repository
 
-import com.pemmob.wakebrain.data.Question
-import com.pemmob.wakebrain.data.QuestionDao
+import com.pemmob.wakebrain.data.local.QuestionDao
+import com.pemmob.wakebrain.data.model.Question
 import com.pemmob.wakebrain.puzzle.MathGenerator
 import com.pemmob.wakebrain.puzzle.MathProblem
 

@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.screens
+package com.pemmob.wakebrain.ui.stopwatch
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

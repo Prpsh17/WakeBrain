@@ -26,20 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.pemmob.wakebrain.data.AppDatabase
+import com.pemmob.wakebrain.data.local.AppDatabase
+import com.pemmob.wakebrain.data.model.Alarm
 import com.pemmob.wakebrain.data.repository.AlarmRepository
 import com.pemmob.wakebrain.data.repository.PuzzleRepository
-import com.pemmob.wakebrain.ui.screens.ActiveAlarmScreen
-import com.pemmob.wakebrain.ui.screens.AddEditAlarmScreen
-import com.pemmob.wakebrain.ui.screens.DonationScreen
-import com.pemmob.wakebrain.ui.screens.HomeScreen
-import com.pemmob.wakebrain.ui.screens.SuccessScreen
+import com.pemmob.wakebrain.ui.activealarm.ActiveAlarmScreen
+import com.pemmob.wakebrain.ui.activealarm.PuzzleUiState
+import com.pemmob.wakebrain.ui.activealarm.PuzzleViewModel
+import com.pemmob.wakebrain.ui.activealarm.PuzzleViewModelFactory
+import com.pemmob.wakebrain.ui.activealarm.SuccessScreen
+import com.pemmob.wakebrain.ui.alarm.AddEditAlarmScreen
+import com.pemmob.wakebrain.ui.alarm.AlarmViewModel
+import com.pemmob.wakebrain.ui.alarm.AlarmViewModelFactory
+import com.pemmob.wakebrain.ui.donation.DonationScreen
+import com.pemmob.wakebrain.ui.home.HomeScreen
 import com.pemmob.wakebrain.ui.theme.WakeBrainTheme
-import com.pemmob.wakebrain.ui.viewmodel.AlarmViewModel
-import com.pemmob.wakebrain.ui.viewmodel.AlarmViewModelFactory
-import com.pemmob.wakebrain.ui.viewmodel.PuzzleUiState
-import com.pemmob.wakebrain.ui.viewmodel.PuzzleViewModel
-import com.pemmob.wakebrain.ui.viewmodel.PuzzleViewModelFactory
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -82,7 +83,7 @@ fun WakeBrainApp(
 
     var currentScreen by rememberSaveable { mutableStateOf("SPLASH") }
     var selectedAlarmId by rememberSaveable { mutableStateOf<Int?>(null) }
-    var activeAlarm by remember { mutableStateOf<com.pemmob.wakebrain.data.Alarm?>(null) }
+    var activeAlarm by remember { mutableStateOf<Alarm?>(null) }
 
     LaunchedEffect(puzzleState) {
         if (puzzleState is PuzzleUiState.Solved && currentScreen == "ACTIVE_ALARM") {

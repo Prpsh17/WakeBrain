@@ -1,7 +1,7 @@
 package com.pemmob.wakebrain.data.repository
 
-import com.pemmob.wakebrain.data.Alarm
-import com.pemmob.wakebrain.data.AlarmDao
+import com.pemmob.wakebrain.data.local.AlarmDao
+import com.pemmob.wakebrain.data.model.Alarm
 import kotlinx.coroutines.flow.Flow
 
 class AlarmRepository(private val alarmDao: AlarmDao) {

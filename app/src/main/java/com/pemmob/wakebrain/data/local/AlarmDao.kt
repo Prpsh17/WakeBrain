@@ -1,10 +1,11 @@
-package com.pemmob.wakebrain.data
+package com.pemmob.wakebrain.data.local
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.pemmob.wakebrain.data.model.Alarm
 import kotlinx.coroutines.flow.Flow
 
 @Dao

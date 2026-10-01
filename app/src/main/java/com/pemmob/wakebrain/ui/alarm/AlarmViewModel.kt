@@ -1,9 +1,9 @@
-package com.pemmob.wakebrain.ui.viewmodel
+package com.pemmob.wakebrain.ui.alarm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.pemmob.wakebrain.data.Alarm
+import com.pemmob.wakebrain.data.model.Alarm
 import com.pemmob.wakebrain.data.repository.AlarmRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

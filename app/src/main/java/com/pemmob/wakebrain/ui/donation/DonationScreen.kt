@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.screens
+package com.pemmob.wakebrain.ui.donation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

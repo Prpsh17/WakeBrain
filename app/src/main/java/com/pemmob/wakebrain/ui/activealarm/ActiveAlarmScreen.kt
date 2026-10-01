@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.screens
+package com.pemmob.wakebrain.ui.activealarm
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -49,8 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pemmob.wakebrain.data.Alarm
-import com.pemmob.wakebrain.ui.viewmodel.PuzzleUiState
+import com.pemmob.wakebrain.data.model.Alarm
 
 @Composable
 fun ActiveAlarmScreen(

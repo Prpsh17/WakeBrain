@@ -1,4 +1,4 @@
-package com.pemmob.wakebrain.ui.viewmodel
+package com.pemmob.wakebrain.ui.activealarm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

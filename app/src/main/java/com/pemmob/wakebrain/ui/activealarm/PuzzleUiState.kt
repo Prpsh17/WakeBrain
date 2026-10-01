@@ -1,6 +1,6 @@
-package com.pemmob.wakebrain.ui.viewmodel
+package com.pemmob.wakebrain.ui.activealarm
 
-import com.pemmob.wakebrain.data.Question
+import com.pemmob.wakebrain.data.model.Question
 import com.pemmob.wakebrain.puzzle.MathProblem
 
 sealed interface PuzzleUiState {
