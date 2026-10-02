@@ -29,10 +29,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,8 +66,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.data.model.Alarm
-import com.pemmob.wakebrain.ui.stopwatch.StopwatchScreen
-import com.pemmob.wakebrain.ui.timer.TimerScreen
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,11 +119,12 @@ fun HomeScreen(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
                 tonalElevation = 4.dp
             ) {
+                // UBAHAN: Navigasi baru - Alarms, Tasks, Routine, Settings
                 val navItems: List<Pair<String, ImageVector>> = listOf(
-                    Pair("Alarm", Icons.Default.Alarm),
-                    Pair("Timer", Icons.Default.Timer),
-                    Pair("Stopwatch", Icons.Default.Schedule),
-                    Pair("Pengaturan", Icons.Default.Settings)
+                    Pair("Alarms", Icons.Default.Alarm),
+                    Pair("Tasks", Icons.Default.Check),
+                    Pair("Routine", Icons.Default.Schedule),
+                    Pair("Settings", Icons.Default.Settings)
                 )
 
                 navItems.forEachIndexed { index, item ->
@@ -153,7 +152,7 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             when (selectedNavTab) {
-                0 -> { // TAB 1: ALARM
+                0 -> { // TAB 1: ALARMS
                     val nextAlarm = alarms.firstOrNull { it.isActive }
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -217,15 +216,15 @@ fun HomeScreen(
                     }
                 }
 
-                1 -> { // TAB 2: TIMER
-                    TimerScreen()
+                1 -> { // TAB 2: TASKS (Baru)
+                    TasksScreen()
                 }
 
-                2 -> { // TAB 3: STOPWATCH
-                    StopwatchScreen()
+                2 -> { // TAB 3: ROUTINE (Baru)
+                    RoutineScreen()
                 }
 
-                3 -> { // TAB 4: PENGATURAN
+                3 -> { // TAB 4: SETTINGS
                     var isChallengeDisabled by remember { mutableStateOf(false) }
                     var isVibrateOnly by remember { mutableStateOf(false) }
 
@@ -234,7 +233,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Pengaturan",
+                            text = "Settings",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -248,7 +247,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isDarkMode) "Tema Gelap 🌙" else "Tema Terang ☀️",
+                                    text = if (isDarkMode) "Dark Theme 🌙" else "Light Theme ☀️",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -264,7 +263,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Matikan Tantangan",
+                                    text = "Disable Challenge",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -280,7 +279,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Hanya Getar",
+                                    text = "Vibrate Only",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -300,7 +299,7 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Donasi ke Admin 💝",
+                                    text = "Donate to Admin 💝",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -323,6 +322,78 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+
+// COMPOSABLE BARU: Tasks Screen
+@Composable
+fun TasksScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "✅", fontSize = 48.sp)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Tasks",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Fitur Tasks akan segera hadir!",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+// COMPOSABLE BARU: Routine Screen
+@Composable
+fun RoutineScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "📅", fontSize = 48.sp)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Routine",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Fitur Routine akan segera hadir!",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -468,7 +539,7 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
                 modifier = Modifier.size(110.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "⏰", fontSize = 52.sp)
+                Text(text = "", fontSize = 52.sp)
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
