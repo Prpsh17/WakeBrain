@@ -53,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,8 +68,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
-import java.util.Calendar
-import java.util.Locale
+import com.pemmob.wakebrain.alarm.AlarmScheduleCalculator
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,16 +169,17 @@ fun HomeScreen(
             when (selectedNavTab) {
                 0 -> { // TAB 1: ALARMS
                     val activeAlarms = alarms.filter { it.isActive }
-                    val now = Calendar.getInstance()
-                    val nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
-                    val nextAlarm = activeAlarms.minByOrNull { alarm ->
-                        val alarmMinutes = alarm.hour * 60 + alarm.minute
-                        var diff = alarmMinutes - nowMinutes
-                        if (diff <= 0) {
-                            diff += 24 * 60
+                    val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
+                        while (true) {
+                            value = System.currentTimeMillis()
+                            delay(30_000L)
                         }
-                        diff
                     }
+                    val nextAlarmInfo = activeAlarms
+                        .map { alarm ->
+                            alarm to AlarmScheduleCalculator.nextTriggerMillis(alarm, nowMillis)
+                        }
+                        .minByOrNull { (_, triggerAt) -> triggerAt }
 
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -190,17 +192,29 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                if (nextAlarm != null) {
-                                    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d WIB", nextAlarm.hour, nextAlarm.minute)
-                                    Text(text = "Alarm berikutnya: ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
-                                    Text(text = formattedTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                } else {
-                                    Text(text = "Semua alarm sedang non-aktif", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (nextAlarmInfo != null) {
+                                val (nextAlarm, triggerAt) = nextAlarmInfo
+                                val formattedTime = "${nextAlarm.hour.toString().padStart(2, '0')}:${nextAlarm.minute.toString().padStart(2, '0')} WIB"
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Alarm berikutnya • $formattedTime",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Text(
+                                        text = AlarmScheduleCalculator.formatTimeUntil(triggerAt, nowMillis),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
                                 }
+                            } else {
+                                Text(
+                                    text = "Semua alarm sedang non-aktif",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.weight(1f),
+                                )
                             }
                             val transition = rememberInfiniteTransition(label = "pulse")
                             val alphaAnim by transition.animateFloat(
@@ -210,7 +224,7 @@ fun HomeScreen(
                                 label = "alpha",
                             )
                             Box(
-                                modifier = Modifier.size(10.dp).alpha(if (nextAlarm != null) alphaAnim else 0.2f).clip(CircleShape).background(if (nextAlarm != null) MaterialTheme.colorScheme.primary else Color.Gray),
+                                modifier = Modifier.size(10.dp).alpha(if (nextAlarmInfo != null) alphaAnim else 0.2f).clip(CircleShape).background(if (nextAlarmInfo != null) MaterialTheme.colorScheme.primary else Color.Gray),
                             )
                         }
                     }
@@ -458,7 +472,7 @@ fun AlarmCardItem(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        val timeStr = String.format(Locale.getDefault(), "%02d:%02d", alarm.hour, alarm.minute)
+                        val timeStr = "${alarm.hour.toString().padStart(2, '0')}:${alarm.minute.toString().padStart(2, '0')}"
                         Text(
                             text = timeStr,
                             style = MaterialTheme.typography.displayMedium,

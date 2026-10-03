@@ -41,7 +41,7 @@ class AlarmViewModel(
         puzzleType: String = "Matematika",
         difficulty: String = "EASY",
         label: String = "Alarm Pagi",
-        days: String = "Sen • Sel • Rab • Kam • Jum"
+        days: String = "Sekali Saja"
     ) {
         viewModelScope.launch {
             val newAlarm = Alarm(

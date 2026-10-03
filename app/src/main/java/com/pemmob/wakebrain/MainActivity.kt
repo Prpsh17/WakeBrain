@@ -1,7 +1,10 @@
 package com.pemmob.wakebrain
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -27,9 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pemmob.wakebrain.alarm.AlarmRingingService
 import com.pemmob.wakebrain.alarm.AlarmScheduler
-import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
+import com.pemmob.wakebrain.alarm.alarmOrNull
 import com.pemmob.wakebrain.data.local.AppDatabase
 import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
@@ -47,63 +53,87 @@ import com.pemmob.wakebrain.ui.donation.DonationScreen
 import com.pemmob.wakebrain.ui.home.HomeScreen
 import com.pemmob.wakebrain.ui.theme.WakeBrainTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var alarmScheduler: AlarmScheduler
+    private val alarmTrigger = MutableStateFlow<AlarmTrigger?>(null)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
 
         val database = AppDatabase.getDatabase(applicationContext)
         val alarmRepository = AlarmRepository(database.alarmDao())
         val puzzleRepository = PuzzleRepository(database.questionDao())
         alarmScheduler = AlarmScheduler(applicationContext)
 
-        val triggerAlarmId = intent?.getIntExtra(AlarmScheduler.EXTRA_ALARM_ID, -1) ?: -1
-        val triggerHour = intent?.getIntExtra(AlarmScheduler.EXTRA_HOUR, 7) ?: 7
-        val triggerMinute = intent?.getIntExtra(AlarmScheduler.EXTRA_MINUTE, 0) ?: 0
-        val triggerPuzzleType = intent?.getStringExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE) ?: "Matematika"
-        val triggerDifficulty = intent?.getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY"
-        val triggerLabel = intent?.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm Pagi"
+        acceptAlarmIntent(intent)
 
-        val initialAlarm = if (triggerAlarmId != -1) {
-            Alarm(
-                id = triggerAlarmId,
-                hour = triggerHour,
-                minute = triggerMinute,
-                isActive = true,
-                puzzleType = triggerPuzzleType,
-                difficulty = triggerDifficulty,
-                label = triggerLabel,
-            )
-        } else {
-            null
+        lifecycleScope.launch {
+            alarmRepository.allAlarms.collectLatest { alarms ->
+                alarms.filter { it.isActive }.forEach(alarmScheduler::schedule)
+            }
         }
 
         setContent {
             var isDarkMode by rememberSaveable { mutableStateOf(true) }
+            val currentAlarmTrigger by alarmTrigger.collectAsState()
             WakeBrainTheme(darkTheme = isDarkMode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     WakeBrainApp(
                         alarmRepository = alarmRepository,
                         puzzleRepository = puzzleRepository,
                         alarmScheduler = alarmScheduler,
-                        triggeredAlarm = initialAlarm,
+                        triggeredAlarm = currentAlarmTrigger?.alarm,
+                        triggerEventId = currentAlarmTrigger?.eventId ?: -1L,
                         isDarkMode = isDarkMode,
                         onThemeChange = { isDarkMode = it },
                     )
                 }
             }
         }
+
+        requestNotificationPermissionIfNeeded()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        acceptAlarmIntent(intent)
+    }
+
+    private fun acceptAlarmIntent(intent: Intent?) {
+        val alarm = intent?.alarmOrNull() ?: return
+        val scheduledAt = intent.getLongExtra(
+            AlarmScheduler.EXTRA_TRIGGER_AT,
+            System.currentTimeMillis(),
+        )
+        alarmTrigger.value = AlarmTrigger(alarm, scheduledAt)
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }
+
+private data class AlarmTrigger(
+    val alarm: Alarm,
+    val eventId: Long,
+)
 
 @Composable
 fun WakeBrainApp(
@@ -111,6 +141,7 @@ fun WakeBrainApp(
     puzzleRepository: PuzzleRepository,
     alarmScheduler: AlarmScheduler,
     triggeredAlarm: Alarm?,
+    triggerEventId: Long,
     isDarkMode: Boolean,
     onThemeChange: (Boolean) -> Unit,
 ) {
@@ -135,11 +166,11 @@ fun WakeBrainApp(
     var selectedAlarmId by rememberSaveable { mutableStateOf<Int?>(null) }
     var activeAlarm by remember { mutableStateOf<Alarm?>(triggeredAlarm) }
 
-    LaunchedEffect(triggeredAlarm) {
+    LaunchedEffect(triggerEventId) {
         if (triggeredAlarm != null) {
             activeAlarm = triggeredAlarm
             if (settingsManager.isChallengeDisabled) {
-                AlarmSoundPlayer.stop()
+                AlarmRingingService.stop(context)
                 currentScreen = "SUCCESS"
             } else {
                 puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
@@ -187,7 +218,7 @@ fun WakeBrainApp(
                 onTriggerAlarmSimulate = { alarm ->
                     activeAlarm = alarm
                     if (settingsManager.isChallengeDisabled) {
-                        AlarmSoundPlayer.stop()
+                        AlarmRingingService.stop(context)
                         currentScreen = "SUCCESS"
                     } else {
                         puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)

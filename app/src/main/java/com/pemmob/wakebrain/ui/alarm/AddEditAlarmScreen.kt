@@ -53,7 +53,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pemmob.wakebrain.data.model.Alarm
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,14 +75,14 @@ fun AddEditAlarmScreen(
     val context = LocalContext.current
     val timePickerDialog = TimePickerDialog(
         context,
-        { _, h: Int, m: Int ->
-            hour = h
-            minute = m
-            isAm = h < 12
+        { _, selectedHour, selectedMinute ->
+            hour = selectedHour
+            minute = selectedMinute
+            isAm = selectedHour < 12
         },
         hour,
         minute,
-        true,
+        false,
     )
 
     val allDays = listOf("Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
@@ -93,8 +92,6 @@ fun AddEditAlarmScreen(
                 allDays.forEach { d ->
                     if (alarm.days.contains(d)) add(d)
                 }
-            } else {
-                addAll(listOf("Sen", "Sel", "Rab", "Kam", "Jum"))
             }
         }
     }
@@ -118,7 +115,7 @@ fun AddEditAlarmScreen(
             },
             text = {
                 Text(
-                    text = "Alarm \"$label\" pukul ${String.format(Locale.getDefault(), "%02d:%02d", hour, minute)} akan dihapus secara permanen.",
+                    text = "Alarm \"$label\" pukul ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} akan dihapus secara permanen.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -242,7 +239,6 @@ fun AddEditAlarmScreen(
                             fontWeight = FontWeight.SemiBold,
                         )
 
-                        // AM/PM Toggle Pill
                         Surface(
                             shape = CircleShape,
                             color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -307,7 +303,7 @@ fun AddEditAlarmScreen(
                         ) {
                             val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
                             Text(
-                                text = String.format(Locale.getDefault(), "%02d", displayHour),
+                                text = displayHour.toString().padStart(2, '0'),
                                 style = MaterialTheme.typography.displayLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -328,7 +324,7 @@ fun AddEditAlarmScreen(
                             modifier = Modifier.padding(horizontal = 4.dp),
                         ) {
                             Text(
-                                text = String.format(Locale.getDefault(), "%02d", minute),
+                                text = minute.toString().padStart(2, '0'),
                                 style = MaterialTheme.typography.displayLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
