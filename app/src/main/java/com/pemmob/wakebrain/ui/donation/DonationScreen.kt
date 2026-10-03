@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,8 +80,6 @@ fun DonationScreen(onBack: () -> Unit) {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "💝", fontSize = 40.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Dukung WakeBrain",
                         style = MaterialTheme.typography.titleLarge,
@@ -106,17 +103,16 @@ fun DonationScreen(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // RowScope berlaku di sini, jadi kita teruskan Modifier.weight(1f) ke komposable
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 MethodCard(
-                    modifier = Modifier.weight(1f), // ✅ DIPERBAIKI
+                    modifier = Modifier.weight(1f),
                     icon = Icons.Default.AccountBalance,
                     label = "Bank Transfer",
                     isSelected = selectedMethod == 0,
                     onClick = { selectedMethod = 0 }
                 )
                 MethodCard(
-                    modifier = Modifier.weight(1f), // ✅ DIPERBAIKI
+                    modifier = Modifier.weight(1f),
                     icon = Icons.Default.QrCode,
                     label = "QRIS",
                     isSelected = selectedMethod == 1,
@@ -132,7 +128,7 @@ fun DonationScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Terima kasih atas dukungan Anda! 🙏",
+                text = "Terima kasih atas dukungan Anda!",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -142,7 +138,6 @@ fun DonationScreen(onBack: () -> Unit) {
     }
 }
 
-// ✅ DIPERBAIKI: Menerima parameter 'modifier' agar bisa menggunakan weight dari parent scope
 @Composable
 fun MethodCard(
     modifier: Modifier = Modifier,
@@ -152,7 +147,6 @@ fun MethodCard(
     onClick: () -> Unit
 ) {
     Card(
-        // ✅ DIPERBAIKI: Menggunakan 'modifier' yang diteruskan, bukan membuat Modifier.weight baru di sini
         modifier = modifier.clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
@@ -217,12 +211,12 @@ fun BankItem(bankName: String, number: String, name: String) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(1f)) { // Ini valid karena Column berada di dalam RowScope
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = bankName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(text = number, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Text(text = name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(onClick = { /* Tambahkan logika copy ke clipboard di sini */ }) {
+            IconButton(onClick = { /* Copy to clipboard */ }) {
                 Icon(imageVector = Icons.Default.ContentCopy, contentDescription = "Salin", tint = MaterialTheme.colorScheme.primary)
             }
         }

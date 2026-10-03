@@ -36,8 +36,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -61,12 +61,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
 import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,53 +80,65 @@ fun HomeScreen(
     onEditAlarmClick: (Int) -> Unit,
     onToggleActive: (Alarm, Boolean) -> Unit,
     onTriggerAlarmSimulate: (Alarm) -> Unit,
-    onDonationClick: () -> Unit
+    onDonationClick: () -> Unit,
 ) {
     var selectedNavTab by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val settingsManager = remember { SettingsManager(context) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
                         Text(
                             text = "WakeBrain",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "Anti-Snooze Smart Alarm",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "•",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "Alarms",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                 ),
-                actions = {
-                    IconButton(onClick = onAddAlarmClick) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Tambah Alarm",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
             )
+        },
+        floatingActionButton = {
+            if (selectedNavTab == 0 && alarms.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = onAddAlarmClick,
+                    icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Tambah Alarm") },
+                    text = { Text("Tambah Alarm", fontWeight = FontWeight.Bold) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
         },
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
-                tonalElevation = 4.dp
+                tonalElevation = 4.dp,
             ) {
-                // UBAHAN: Navigasi baru - Alarms, Tasks, Routine, Settings
                 val navItems: List<Pair<String, ImageVector>> = listOf(
                     Pair("Alarms", Icons.Default.Alarm),
                     Pair("Tasks", Icons.Default.Check),
                     Pair("Routine", Icons.Default.Schedule),
-                    Pair("Settings", Icons.Default.Settings)
+                    Pair("Settings", Icons.Default.Settings),
                 )
 
                 navItems.forEachIndexed { index, item ->
@@ -138,45 +152,50 @@ fun HomeScreen(
                             selectedTextColor = MaterialTheme.colorScheme.primary,
                             indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surface),
         ) {
             when (selectedNavTab) {
                 0 -> { // TAB 1: ALARMS
-                    val nextAlarm = alarms.firstOrNull { it.isActive }
+                    val activeAlarms = alarms.filter { it.isActive }
+                    val now = Calendar.getInstance()
+                    val nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+                    val nextAlarm = activeAlarms.minByOrNull { alarm ->
+                        val alarmMinutes = alarm.hour * 60 + alarm.minute
+                        var diff = alarmMinutes - nowMinutes
+                        if (diff <= 0) {
+                            diff += 24 * 60
+                        }
+                        diff
+                    }
+
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surfaceContainer,
-                        tonalElevation = 2.dp
+                        tonalElevation = 2.dp,
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                Box(
-                                    modifier = Modifier.size(28.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "⏰", fontSize = 14.sp)
-                                }
                                 if (nextAlarm != null) {
-                                    val formattedTime = String.format("%02d:%02d WIB", nextAlarm.hour, nextAlarm.minute)
+                                    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d WIB", nextAlarm.hour, nextAlarm.minute)
                                     Text(text = "Alarm berikutnya: ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                                     Text(text = formattedTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                                 } else {
@@ -188,10 +207,10 @@ fun HomeScreen(
                                 initialValue = 0.3f,
                                 targetValue = 1f,
                                 animationSpec = infiniteRepeatable(animation = tween(800, easing = FastOutSlowInEasing), repeatMode = RepeatMode.Reverse),
-                                label = "alpha"
+                                label = "alpha",
                             )
                             Box(
-                                modifier = Modifier.size(10.dp).alpha(if (nextAlarm != null) alphaAnim else 0.2f).clip(CircleShape).background(if (nextAlarm != null) MaterialTheme.colorScheme.primary else Color.Gray)
+                                modifier = Modifier.size(10.dp).alpha(if (nextAlarm != null) alphaAnim else 0.2f).clip(CircleShape).background(if (nextAlarm != null) MaterialTheme.colorScheme.primary else Color.Gray),
                             )
                         }
                     }
@@ -202,41 +221,41 @@ fun HomeScreen(
                         LazyColumn(
                             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(items = alarms, key = { it.id }) { alarm ->
                                 AlarmCardItem(
                                     alarm = alarm,
                                     onClick = { onEditAlarmClick(alarm.id) },
                                     onToggleActive = { isActive -> onToggleActive(alarm, isActive) },
-                                    onTriggerAlarmSimulate = { onTriggerAlarmSimulate(alarm) }
+                                    onTriggerAlarmSimulate = { onTriggerAlarmSimulate(alarm) },
                                 )
                             }
                         }
                     }
                 }
 
-                1 -> { // TAB 2: TASKS (Baru)
+                1 -> { // TAB 2: TASKS
                     TasksScreen()
                 }
 
-                2 -> { // TAB 3: ROUTINE (Baru)
+                2 -> { // TAB 3: ROUTINE
                     RoutineScreen()
                 }
 
                 3 -> { // TAB 4: SETTINGS
-                    var isChallengeDisabled by remember { mutableStateOf(false) }
-                    var isVibrateOnly by remember { mutableStateOf(false) }
+                    var isChallengeDisabled by remember { mutableStateOf(settingsManager.isChallengeDisabled) }
+                    var isVibrateOnly by remember { mutableStateOf(settingsManager.isVibrateOnly) }
 
                     Column(
                         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text(
                             text = "Settings",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
 
                         // Tema
@@ -244,12 +263,12 @@ fun HomeScreen(
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = if (isDarkMode) "Dark Theme 🌙" else "Light Theme ☀️",
+                                    text = if (isDarkMode) "Dark Theme" else "Light Theme",
                                     style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
                                 )
                                 Switch(checked = isDarkMode, onCheckedChange = onThemeChange)
                             }
@@ -260,14 +279,20 @@ fun HomeScreen(
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
                                     text = "Disable Challenge",
                                     style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
                                 )
-                                Switch(checked = isChallengeDisabled, onCheckedChange = { isChallengeDisabled = it })
+                                Switch(
+                                    checked = isChallengeDisabled,
+                                    onCheckedChange = {
+                                        isChallengeDisabled = it
+                                        settingsManager.isChallengeDisabled = it
+                                    },
+                                )
                             }
                         }
 
@@ -276,37 +301,43 @@ fun HomeScreen(
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
                                     text = "Vibrate Only",
                                     style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
                                 )
-                                Switch(checked = isVibrateOnly, onCheckedChange = { isVibrateOnly = it })
+                                Switch(
+                                    checked = isVibrateOnly,
+                                    onCheckedChange = {
+                                        isVibrateOnly = it
+                                        settingsManager.isVibrateOnly = it
+                                    },
+                                )
                             }
                         }
 
-                        // Donasi (Clickable)
+                        // Donasi
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onDonationClick() }
+                                .clickable { onDonationClick() },
                         ) {
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "Donate to Admin 💝",
+                                    text = "Donate to Admin",
                                     style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
                                 )
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
                                     contentDescription = "Donasi",
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
                         }
@@ -316,7 +347,7 @@ fun HomeScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
@@ -325,7 +356,6 @@ fun HomeScreen(
     }
 }
 
-// COMPOSABLE BARU: Tasks Screen
 @Composable
 fun TasksScreen() {
     Column(
@@ -333,35 +363,39 @@ fun TasksScreen() {
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Box(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerLow),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
-            Text(text = "✅", fontSize = 48.sp)
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Tasks",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Fitur Tasks akan segera hadir!",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
 
-// COMPOSABLE BARU: Routine Screen
 @Composable
 fun RoutineScreen() {
     Column(
@@ -369,44 +403,36 @@ fun RoutineScreen() {
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Box(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerLow),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
-            Text(text = "📅", fontSize = 48.sp)
+            Icon(
+                imageVector = Icons.Default.Schedule,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Routine",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Fitur Routine akan segera hadir!",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
-    }
-}
-
-@Composable
-fun getGreeting(): String {
-    val calendar = Calendar.getInstance()
-    val hour = calendar.get(Calendar.HOUR_OF_DAY)
-    return when {
-        hour in 0..4 -> "Selamat Malam"
-        hour in 5..10 -> "Selamat Pagi"
-        hour in 11..14 -> "Selamat Siang"
-        hour in 15..17 -> "Selamat Sore"
-        else -> "Selamat Malam"
     }
 }
 
@@ -415,49 +441,49 @@ fun AlarmCardItem(
     alarm: Alarm,
     onClick: () -> Unit,
     onToggleActive: (Boolean) -> Unit,
-    onTriggerAlarmSimulate: () -> Unit
+    onTriggerAlarmSimulate: (Alarm) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (alarm.isActive) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.6f)
-        )
+            containerColor = if (alarm.isActive) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.6f),
+        ),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        val timeStr = String.format("%02d:%02d", alarm.hour, alarm.minute)
+                        val timeStr = String.format(Locale.getDefault(), "%02d:%02d", alarm.hour, alarm.minute)
                         Text(
                             text = timeStr,
                             style = MaterialTheme.typography.displayMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (alarm.isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
+                            color = if (alarm.isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
                         )
                         Surface(
                             shape = RoundedCornerShape(4.dp),
                             color = if (alarm.isActive) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainer,
-                            modifier = Modifier.padding(bottom = 6.dp)
+                            modifier = Modifier.padding(bottom = 6.dp),
                         ) {
                             Text(
                                 text = "WIB",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = if (alarm.isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             )
                         }
                     }
                     Text(
-                        text = if (alarm.label.isNotBlank()) alarm.label else "Alarm",
+                        text = alarm.label.ifBlank { "Alarm" },
                         style = MaterialTheme.typography.titleMedium,
                         color = if (alarm.isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                     Text(text = alarm.days, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -469,8 +495,8 @@ fun AlarmCardItem(
                             checkedThumbColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
                             uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        )
+                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        ),
                     )
                 }
             }
@@ -478,44 +504,43 @@ fun AlarmCardItem(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Text(text = if (alarm.puzzleType == "Trivia") "🧩" else "🔢", fontSize = 12.sp)
                         Text(
                             text = "${alarm.puzzleType} • 2 Tahap",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                     }
                 }
                 Surface(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { onTriggerAlarmSimulate() },
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { onTriggerAlarmSimulate(alarm) },
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
                             contentDescription = "Tes Dering",
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
                             text = "Tes Dering",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -529,17 +554,22 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Box(
             modifier = Modifier.size(140.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerLow),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier.size(110.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
-                Text(text = "", fontSize = 52.sp)
+                Icon(
+                    imageVector = Icons.Default.Alarm,
+                    contentDescription = null,
+                    modifier = Modifier.size(52.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -547,26 +577,26 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
             text = "Belum ada alarm",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Tambahkan alarm pertamamu untuk mulai membangun rutinitas pagi yang disiplin.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(0.8f).clip(CircleShape).clickable { onAddAlarmClick() },
             shape = CircleShape,
             color = MaterialTheme.colorScheme.primaryContainer,
-            shadowElevation = 6.dp
+            shadowElevation = 6.dp,
         ) {
             Row(
                 modifier = Modifier.padding(vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -574,7 +604,7 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
                     text = "Tambah Alarm Pertama",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
         }
@@ -582,26 +612,25 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
         Card(
             modifier = Modifier.fillMaxWidth(0.9f),
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(text = "💡", fontSize = 20.sp)
                     Column {
                         Text(
-                            text = "Tantangan Kognitif",
+                            text = "Tantangan Pagi",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "2 kuis otomatis aktif saat bangun",
+                            text = "Siap aktif saat bangun",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -611,7 +640,7 @@ fun EmptyAlarmView(onAddAlarmClick: () -> Unit) {
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                     )
                 }
             }

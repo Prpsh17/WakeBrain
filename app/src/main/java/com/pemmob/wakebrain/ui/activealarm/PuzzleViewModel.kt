@@ -59,9 +59,20 @@ class PuzzleViewModel(
     }
 
     private fun loadMathQuestion(difficulty: String, stage: Int, isError: Boolean = false, errorMessage: String? = null) {
-        val problem = repository.getMathProblem(difficulty)
+        val currentProblem = (_uiState.value as? PuzzleUiState.MathActive)?.problem
+        var newProblem = repository.getMathProblem(difficulty)
+
+        // Jika ganti soal karena salah, jamin soal baru berbeda dengan soal sebelumnya
+        if (isError && currentProblem != null) {
+            var attempts = 0
+            while (newProblem.questionText == currentProblem.questionText && attempts < 10) {
+                newProblem = repository.getMathProblem(difficulty)
+                attempts++
+            }
+        }
+
         _uiState.value = PuzzleUiState.MathActive(
-            problem = problem,
+            problem = newProblem,
             stage = stage,
             totalStages = totalStages,
             isError = isError,
@@ -72,7 +83,18 @@ class PuzzleViewModel(
     private fun loadTriviaQuestion(stage: Int, isError: Boolean = false, errorMessage: String? = null) {
         viewModelScope.launch {
             try {
-                val trivia = repository.getRandomTrivia()
+                val currentQuestion = (_uiState.value as? PuzzleUiState.TriviaActive)?.question
+                var trivia = repository.getRandomTrivia()
+
+                // Jika ganti soal trivia karena salah, cari soal lain yang berbeda
+                if (isError && currentQuestion != null) {
+                    var attempts = 0
+                    while (trivia != null && trivia.id == currentQuestion.id && attempts < 10) {
+                        trivia = repository.getRandomTrivia()
+                        attempts++
+                    }
+                }
+
                 if (trivia != null) {
                     val options = listOf(trivia.optionA, trivia.optionB, trivia.optionC).shuffled()
                     _uiState.value = PuzzleUiState.TriviaActive(
@@ -110,7 +132,7 @@ class PuzzleViewModel(
                         _uiState.value = PuzzleUiState.Solved
                     }
                 } else {
-                    // JAWABAN SALAH: Beri pesan error dan ganti soal
+                    // JAWABAN SALAH: Beri pesan error dan ganti ke soal baru yang berbeda
                     loadMathQuestion(
                         activeDifficulty,
                         currentStage,
@@ -131,7 +153,7 @@ class PuzzleViewModel(
                         _uiState.value = PuzzleUiState.Solved
                     }
                 } else {
-                    // JAWABAN SALAH: Tampilkan error & beri soal baru
+                    // JAWABAN SALAH: Tampilkan error & ganti ke soal trivia baru
                     loadTriviaQuestion(
                         currentStage,
                         isError = true,

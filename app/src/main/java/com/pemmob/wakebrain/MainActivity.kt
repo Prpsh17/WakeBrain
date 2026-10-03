@@ -1,5 +1,6 @@
 package com.pemmob.wakebrain
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -24,9 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pemmob.wakebrain.alarm.AlarmScheduler
+import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
 import com.pemmob.wakebrain.data.local.AppDatabase
+import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
 import com.pemmob.wakebrain.data.repository.AlarmRepository
 import com.pemmob.wakebrain.data.repository.PuzzleRepository
@@ -44,6 +49,9 @@ import com.pemmob.wakebrain.ui.theme.WakeBrainTheme
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var alarmScheduler: AlarmScheduler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -51,6 +59,28 @@ class MainActivity : ComponentActivity() {
         val database = AppDatabase.getDatabase(applicationContext)
         val alarmRepository = AlarmRepository(database.alarmDao())
         val puzzleRepository = PuzzleRepository(database.questionDao())
+        alarmScheduler = AlarmScheduler(applicationContext)
+
+        val triggerAlarmId = intent?.getIntExtra(AlarmScheduler.EXTRA_ALARM_ID, -1) ?: -1
+        val triggerHour = intent?.getIntExtra(AlarmScheduler.EXTRA_HOUR, 7) ?: 7
+        val triggerMinute = intent?.getIntExtra(AlarmScheduler.EXTRA_MINUTE, 0) ?: 0
+        val triggerPuzzleType = intent?.getStringExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE) ?: "Matematika"
+        val triggerDifficulty = intent?.getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY"
+        val triggerLabel = intent?.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm Pagi"
+
+        val initialAlarm = if (triggerAlarmId != -1) {
+            Alarm(
+                id = triggerAlarmId,
+                hour = triggerHour,
+                minute = triggerMinute,
+                isActive = true,
+                puzzleType = triggerPuzzleType,
+                difficulty = triggerDifficulty,
+                label = triggerLabel,
+            )
+        } else {
+            null
+        }
 
         setContent {
             var isDarkMode by rememberSaveable { mutableStateOf(true) }
@@ -59,12 +89,19 @@ class MainActivity : ComponentActivity() {
                     WakeBrainApp(
                         alarmRepository = alarmRepository,
                         puzzleRepository = puzzleRepository,
+                        alarmScheduler = alarmScheduler,
+                        triggeredAlarm = initialAlarm,
                         isDarkMode = isDarkMode,
-                        onThemeChange = { isDarkMode = it }
+                        onThemeChange = { isDarkMode = it },
                     )
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 }
 
@@ -72,26 +109,57 @@ class MainActivity : ComponentActivity() {
 fun WakeBrainApp(
     alarmRepository: AlarmRepository,
     puzzleRepository: PuzzleRepository,
+    alarmScheduler: AlarmScheduler,
+    triggeredAlarm: Alarm?,
     isDarkMode: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    onThemeChange: (Boolean) -> Unit,
 ) {
-    val alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(alarmRepository))
+    val context = LocalContext.current
+    val settingsManager = remember { SettingsManager(context) }
+
+    val alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(alarmRepository, alarmScheduler))
     val puzzleViewModel: PuzzleViewModel = viewModel(factory = PuzzleViewModelFactory(puzzleRepository))
 
     val alarms by alarmViewModel.alarms.collectAsState()
     val puzzleState by puzzleViewModel.uiState.collectAsState()
 
-    var currentScreen by rememberSaveable { mutableStateOf("SPLASH") }
+    var currentScreen by rememberSaveable {
+        mutableStateOf(
+            if (triggeredAlarm != null) {
+                if (settingsManager.isChallengeDisabled) "SUCCESS" else "ACTIVE_ALARM"
+            } else {
+                "SPLASH"
+            },
+        )
+    }
     var selectedAlarmId by rememberSaveable { mutableStateOf<Int?>(null) }
-    var activeAlarm by remember { mutableStateOf<Alarm?>(null) }
+    var activeAlarm by remember { mutableStateOf<Alarm?>(triggeredAlarm) }
+
+    LaunchedEffect(triggeredAlarm) {
+        if (triggeredAlarm != null) {
+            activeAlarm = triggeredAlarm
+            if (settingsManager.isChallengeDisabled) {
+                AlarmSoundPlayer.stop()
+                currentScreen = "SUCCESS"
+            } else {
+                puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
+                currentScreen = "ACTIVE_ALARM"
+            }
+        }
+    }
 
     LaunchedEffect(puzzleState) {
         if (puzzleState is PuzzleUiState.Solved && currentScreen == "ACTIVE_ALARM") {
+            activeAlarm?.let { alarm ->
+                if (alarm.days.contains("Sekali", ignoreCase = true) || alarm.days.isEmpty()) {
+                    alarmViewModel.toggleAlarmActive(alarm, false)
+                }
+            }
             currentScreen = "SUCCESS"
         }
     }
 
-    BackHandler(enabled = currentScreen != "HOME" && currentScreen != "DONATION") {
+    BackHandler(enabled = (currentScreen != "HOME" && currentScreen != "DONATION")) {
         if (currentScreen == "DONATION") {
             currentScreen = "HOME"
         } else if (currentScreen != "ACTIVE_ALARM") {
@@ -118,10 +186,15 @@ fun WakeBrainApp(
                 },
                 onTriggerAlarmSimulate = { alarm ->
                     activeAlarm = alarm
-                    puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
-                    currentScreen = "ACTIVE_ALARM"
+                    if (settingsManager.isChallengeDisabled) {
+                        AlarmSoundPlayer.stop()
+                        currentScreen = "SUCCESS"
+                    } else {
+                        puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
+                        currentScreen = "ACTIVE_ALARM"
+                    }
                 },
-                onDonationClick = { currentScreen = "DONATION" }
+                onDonationClick = { currentScreen = "DONATION" },
             )
         }
         "DONATION" -> {
@@ -135,7 +208,7 @@ fun WakeBrainApp(
                     currentScreen = "HOME"
                 },
                 onDelete = {},
-                onBack = { currentScreen = "HOME" }
+                onBack = { currentScreen = "HOME" },
             )
         }
         "EDIT_ALARM" -> {
@@ -145,7 +218,7 @@ fun WakeBrainApp(
                 onSave = { hour, minute, puzzleType, difficulty, label, days ->
                     if (alarmToEdit != null) {
                         alarmViewModel.updateAlarm(
-                            alarmToEdit.copy(hour = hour, minute = minute, puzzleType = puzzleType, difficulty = difficulty, label = label, days = days)
+                            alarmToEdit.copy(hour = hour, minute = minute, puzzleType = puzzleType, difficulty = difficulty, label = label, days = days),
                         )
                     }
                     currentScreen = "HOME"
@@ -154,11 +227,15 @@ fun WakeBrainApp(
                     alarmViewModel.deleteAlarm(alarm)
                     currentScreen = "HOME"
                 },
-                onBack = { currentScreen = "HOME" }
+                onBack = { currentScreen = "HOME" },
             )
         }
         "ACTIVE_ALARM" -> {
-            ActiveAlarmScreen(uiState = puzzleState, alarm = activeAlarm, onSubmitAnswer = { answer -> puzzleViewModel.submitAnswer(answer) })
+            ActiveAlarmScreen(
+                uiState = puzzleState,
+                alarm = activeAlarm,
+                onSubmitAnswer = { answer -> puzzleViewModel.submitAnswer(answer) },
+            )
         }
         "SUCCESS" -> {
             SuccessScreen(onFinish = { currentScreen = "HOME" })
@@ -178,8 +255,8 @@ fun SplashScreen(onTimeout: () -> Unit) {
             targetValue = 1.2f,
             animationSpec = tween(
                 durationMillis = 800,
-                easing = { android.view.animation.OvershootInterpolator(2f).getInterpolation(it) }
-            )
+                easing = { android.view.animation.OvershootInterpolator(2f).getInterpolation(it) },
+            ),
         )
         delay(1000L)
         onTimeout()
@@ -189,14 +266,14 @@ fun SplashScreen(onTimeout: () -> Unit) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surface),
     ) {
         Text(
             text = "WakeBrain",
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.scale(scale.value)
+            modifier = Modifier.scale(scale.value),
         )
     }
 }

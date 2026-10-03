@@ -52,8 +52,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.data.model.Alarm
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +61,7 @@ fun AddEditAlarmScreen(
     alarm: Alarm?,
     onSave: (hour: Int, minute: Int, puzzleType: String, difficulty: String, label: String, days: String) -> Unit,
     onDelete: (Alarm) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val isEditMode = (alarm != null)
 
@@ -81,7 +81,9 @@ fun AddEditAlarmScreen(
             minute = m
             isAm = h < 12
         },
-        hour, minute, true
+        hour,
+        minute,
+        true,
     )
 
     val allDays = listOf("Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
@@ -104,30 +106,21 @@ fun AddEditAlarmScreen(
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "⚠️", fontSize = 18.sp)
-                    }
                     Text(
                         text = "Hapus Alarm Ini?",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             },
             text = {
                 Text(
-                    text = "Alarm \"$label\" pukul ${String.format("%02d:%02d", hour, minute)} akan dihapus secara permanen.",
+                    text = "Alarm \"$label\" pukul ${String.format(Locale.getDefault(), "%02d:%02d", hour, minute)} akan dihapus secara permanen.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
@@ -138,8 +131,8 @@ fun AddEditAlarmScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    ),
                 ) {
                     Text("Hapus", fontWeight = FontWeight.Bold)
                 }
@@ -148,7 +141,7 @@ fun AddEditAlarmScreen(
                 TextButton(onClick = { showDeleteDialog = false }) {
                     Text("Batal", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            }
+            },
         )
     }
 
@@ -159,14 +152,14 @@ fun AddEditAlarmScreen(
                     Text(
                         text = if (isEditMode) "Edit Alarm" else "Tambah Alarm",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Kembali"
+                            contentDescription = "Kembali",
                         )
                     }
                 },
@@ -176,16 +169,16 @@ fun AddEditAlarmScreen(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Hapus Alarm",
-                                tint = MaterialTheme.colorScheme.error
+                                tint = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -194,33 +187,32 @@ fun AddEditAlarmScreen(
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Ambient Sleep Inertia Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text(text = "🌙", fontSize = 24.sp)
                     Column {
                         Text(
                             text = "Bangun Lebih Fokus",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = "Disiplin Pagi dengan stimulasi kognitif interaktif.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -230,30 +222,30 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
                             text = "Waktu Dering",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
 
                         // AM/PM Toggle Pill
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
                         ) {
                             Row(modifier = Modifier.padding(2.dp)) {
                                 Surface(
@@ -266,14 +258,14 @@ fun AddEditAlarmScreen(
                                             }
                                         },
                                     color = if (isAm) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                                    shape = CircleShape
+                                    shape = CircleShape,
                                 ) {
                                     Text(
                                         text = "AM",
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = if (isAm) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                     )
                                 }
                                 Surface(
@@ -286,14 +278,14 @@ fun AddEditAlarmScreen(
                                             }
                                         },
                                     color = if (!isAm) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                                    shape = CircleShape
+                                    shape = CircleShape,
                                 ) {
                                     Text(
                                         text = "PM",
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = if (!isAm) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                     )
                                 }
                             }
@@ -306,20 +298,20 @@ fun AddEditAlarmScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.clickable { timePickerDialog.show() }.padding(8.dp)
+                        modifier = Modifier.clickable { timePickerDialog.show() }.padding(8.dp),
                     ) {
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            modifier = Modifier.padding(horizontal = 4.dp)
+                            modifier = Modifier.padding(horizontal = 4.dp),
                         ) {
                             val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
                             Text(
-                                text = String.format("%02d", displayHour),
+                                text = String.format(Locale.getDefault(), "%02d", displayHour),
                                 style = MaterialTheme.typography.displayLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             )
                         }
 
@@ -327,20 +319,20 @@ fun AddEditAlarmScreen(
                             text = ":",
                             style = MaterialTheme.typography.displayLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
 
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            modifier = Modifier.padding(horizontal = 4.dp)
+                            modifier = Modifier.padding(horizontal = 4.dp),
                         ) {
                             Text(
-                                text = String.format("%02d", minute),
+                                text = String.format(Locale.getDefault(), "%02d", minute),
                                 style = MaterialTheme.typography.displayLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             )
                         }
                     }
@@ -354,14 +346,14 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Nama Alarm",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
@@ -372,8 +364,8 @@ fun AddEditAlarmScreen(
                         placeholder = { Text("Contoh: Kuliah Pagi, Olahraga") },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                        )
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        ),
                     )
                 }
             }
@@ -382,34 +374,34 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
                             text = "Ulangi Hari",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                         Text(
                             text = if (selectedDays.size == 7) "Setiap Hari" else if (selectedDays.isEmpty()) "Sekali Saja" else selectedDays.joinToString(" • "),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         allDays.forEach { day ->
                             val isSelected = selectedDays.contains(day)
@@ -421,14 +413,14 @@ fun AddEditAlarmScreen(
                                         if (isSelected) selectedDays.remove(day) else selectedDays.add(day)
                                     },
                                 shape = CircleShape,
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
                                         text = day,
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
@@ -441,29 +433,28 @@ fun AddEditAlarmScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text(text = "🧠", fontSize = 20.sp)
                         Text(
                             text = "Tantangan Bangun (Anti-Snooze)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
 
                     Text(
                         text = "Pilih tipe tantangan utama saat alarm berdering. Aplikasi secara otomatis menyajikan 2 tantangan kognitif berurutan.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     // Puzzle Type Chips
@@ -476,14 +467,14 @@ fun AddEditAlarmScreen(
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable { puzzleType = type },
                                 shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
                                 Text(
-                                    text = if (type == "Matematika") "🔢 Matematika" else "🧩 Trivia Pengetahuan",
+                                    text = if (type == "Matematika") "Matematika" else "Trivia Pengetahuan",
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                                 )
                             }
                         }
@@ -493,7 +484,7 @@ fun AddEditAlarmScreen(
                     Text(
                         text = "Tingkat Kesulitan:",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         val levels = listOf("EASY", "MEDIUM", "HARD")
@@ -504,14 +495,14 @@ fun AddEditAlarmScreen(
                                     .clip(CircleShape)
                                     .clickable { difficulty = lvl },
                                 shape = CircleShape,
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
                                 Text(
                                     text = lvl,
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 )
                             }
                         }
@@ -533,13 +524,13 @@ fun AddEditAlarmScreen(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
             ) {
                 Text(
                     text = if (isEditMode) "Simpan Perubahan" else "Simpan Alarm",
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
 
@@ -551,13 +542,13 @@ fun AddEditAlarmScreen(
                         .height(48.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
                 ) {
                     Text(
                         text = "Hapus Alarm",
                         style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }

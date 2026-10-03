@@ -67,7 +67,7 @@ fun SuccessScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Berhasil! 🎉",
+            text = "Berhasil!",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -94,7 +94,6 @@ fun SuccessScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(text = "⏰", fontSize = 14.sp)
                 Text(
                     text = "Tepat Waktu • Bangun Disiplin",
                     style = MaterialTheme.typography.labelSmall,
@@ -118,8 +117,6 @@ fun SuccessScreen(
                     .padding(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "🧠", fontSize = 32.sp)
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "KESIAPAN MENTAL",
                     style = MaterialTheme.typography.labelSmall,
@@ -167,7 +164,7 @@ fun SuccessScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Benar 80% (Salah 20%)",
+                            text = "100% (Akurasi Sempurna)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -199,7 +196,6 @@ fun SuccessScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(text = "💧", fontSize = 24.sp)
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Rutinitas Berikutnya",
