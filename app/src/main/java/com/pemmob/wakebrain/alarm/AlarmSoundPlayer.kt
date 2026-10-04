@@ -13,11 +13,16 @@ import com.pemmob.wakebrain.data.local.SettingsManager
 object AlarmSoundPlayer {
     private var mediaPlayer: MediaPlayer? = null
 
+    private fun getSoundResource(ringtoneName: String): Int {
+        return when (ringtoneName.lowercase()) {
+            "nada 2", "nada pasha", "alarm pasha", "pasha" -> R.raw.alarm_pasha
+            "nada 3", "nada pikri", "alarm pikri", "pikri" -> R.raw.alarm_pikri
+            else -> R.raw.alarm_adit // Nada 1 / Nada Adit
+        }
+    }
+
     /**
-     * Memulai pemutaran nada dering MP3 berdasarkan pilihan nada ("Nada 1", "Nada 2", "Nada 3").
-     * - Nada 1: Custom MP3 WakeBrain
-     * - Nada 2: Nada Dering Alarm Sistem Android
-     * - Nada 3: Nada Dering Telepon/Notifikasi Sistem
+     * Memulai pemutaran nada dering MP3 berdasarkan pilihan nada.
      */
     fun start(context: Context, ringtoneName: String = "Nada 1") {
         val settingsManager = SettingsManager(context)
@@ -25,47 +30,12 @@ object AlarmSoundPlayer {
 
         if (mediaPlayer?.isPlaying == true) return
 
+        val soundRes = getSoundResource(ringtoneName)
+
         try {
-            when (ringtoneName.lowercase()) {
-                "nada 2", "nada energetik" -> {
-                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(context, alarmUri)
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build(),
-                        )
-                        isLooping = true
-                        prepare()
-                        start()
-                    }
-                }
-                "nada 3", "nada nyaring" -> {
-                    val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(context, ringtoneUri)
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build(),
-                        )
-                        isLooping = true
-                        prepare()
-                        start()
-                    }
-                }
-                else -> {
-                    // Nada 1: Custom MP3
-                    mediaPlayer = MediaPlayer.create(context, R.raw.alarm_sound)?.apply {
-                        isLooping = true
-                        start()
-                    }
-                }
+            mediaPlayer = MediaPlayer.create(context, soundRes)?.apply {
+                isLooping = true
+                start()
             }
         } catch (_: Exception) {
             mediaPlayer = null
@@ -94,54 +64,19 @@ object AlarmSoundPlayer {
     }
 
     /**
-     * Memutar sampel sampel/pratinjau nada dering (saat tombol chip diketuk pada AddEditAlarmScreen).
+     * Memutar pratinjau/sampel nada dering saat diketuk.
      */
     fun playSample(context: Context, ringtoneName: String) {
         stop()
         val settingsManager = SettingsManager(context)
         if (settingsManager.isVibrateOnly) return
 
+        val soundRes = getSoundResource(ringtoneName)
+
         try {
-            when (ringtoneName.lowercase()) {
-                "nada 2", "nada energetik" -> {
-                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(context, alarmUri)
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build(),
-                        )
-                        isLooping = false
-                        prepare()
-                        start()
-                    }
-                }
-                "nada 3", "nada nyaring" -> {
-                    val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(context, ringtoneUri)
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build(),
-                        )
-                        isLooping = false
-                        prepare()
-                        start()
-                    }
-                }
-                else -> {
-                    // Nada 1: Custom MP3
-                    mediaPlayer = MediaPlayer.create(context, R.raw.alarm_sound)?.apply {
-                        isLooping = false
-                        start()
-                    }
-                }
+            mediaPlayer = MediaPlayer.create(context, soundRes)?.apply {
+                isLooping = false
+                start()
             }
         } catch (_: Exception) {
             mediaPlayer = null

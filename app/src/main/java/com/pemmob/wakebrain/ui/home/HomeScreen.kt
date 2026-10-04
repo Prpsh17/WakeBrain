@@ -64,9 +64,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.pemmob.wakebrain.alarm.AlarmScheduleCalculator
 import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
-import com.pemmob.wakebrain.alarm.AlarmScheduleCalculator
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -245,7 +245,6 @@ fun HomeScreen(
                 }
 
                 1 -> { // TAB 2: SETTINGS
-                    var isChallengeDisabled by remember { mutableStateOf(settingsManager.isChallengeDisabled) }
                     var isVibrateOnly by remember { mutableStateOf(settingsManager.isVibrateOnly) }
 
                     Column(
@@ -272,28 +271,6 @@ fun HomeScreen(
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Switch(checked = isDarkMode, onCheckedChange = onThemeChange)
-                            }
-                        }
-
-                        // Tantangan
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Row(
-                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = "Disable Challenge",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Switch(
-                                    checked = isChallengeDisabled,
-                                    onCheckedChange = {
-                                        isChallengeDisabled = it
-                                        settingsManager.isChallengeDisabled = it
-                                    },
-                                )
                             }
                         }
 

@@ -25,13 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pemmob.wakebrain.alarm.AlarmScheduler
-import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
 import com.pemmob.wakebrain.data.local.AppDatabase
-import com.pemmob.wakebrain.data.local.SettingsManager
 import com.pemmob.wakebrain.data.model.Alarm
 import com.pemmob.wakebrain.data.repository.AlarmRepository
 import com.pemmob.wakebrain.data.repository.PuzzleRepository
@@ -115,9 +112,6 @@ fun WakeBrainApp(
     isDarkMode: Boolean,
     onThemeChange: (Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
-    val settingsManager = remember { SettingsManager(context) }
-
     val alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(alarmRepository, alarmScheduler))
     val puzzleViewModel: PuzzleViewModel = viewModel(factory = PuzzleViewModelFactory(puzzleRepository))
 
@@ -126,11 +120,7 @@ fun WakeBrainApp(
 
     var currentScreen by rememberSaveable {
         mutableStateOf(
-            if (triggeredAlarm != null) {
-                if (settingsManager.isChallengeDisabled) "SUCCESS" else "ACTIVE_ALARM"
-            } else {
-                "SPLASH"
-            },
+            if (triggeredAlarm != null) "ACTIVE_ALARM" else "SPLASH",
         )
     }
     var selectedAlarmId by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -139,13 +129,8 @@ fun WakeBrainApp(
     LaunchedEffect(triggeredAlarm) {
         if (triggeredAlarm != null) {
             activeAlarm = triggeredAlarm
-            if (settingsManager.isChallengeDisabled) {
-                AlarmSoundPlayer.stop()
-                currentScreen = "SUCCESS"
-            } else {
-                puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
-                currentScreen = "ACTIVE_ALARM"
-            }
+            puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
+            currentScreen = "ACTIVE_ALARM"
         }
     }
 
@@ -183,13 +168,8 @@ fun WakeBrainApp(
                 },
                 onTriggerAlarmSimulate = { alarm ->
                     activeAlarm = alarm
-                    if (settingsManager.isChallengeDisabled) {
-                        AlarmSoundPlayer.stop()
-                        currentScreen = "SUCCESS"
-                    } else {
-                        puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
-                        currentScreen = "ACTIVE_ALARM"
-                    }
+                    puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
+                    currentScreen = "ACTIVE_ALARM"
                 },
             )
         }
