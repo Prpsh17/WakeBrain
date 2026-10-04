@@ -9,8 +9,9 @@ data class Alarm(
     val hour: Int,
     val minute: Int,
     val isActive: Boolean = true,
-    val puzzleType: String = "Matematika", // "Matematika" atau "Trivia"
-    val difficulty: String = "EASY",       // "EASY", "MEDIUM", "HARD"
+    val puzzleType: String = "Matematika",
+    val difficulty: String = "EASY",
     val label: String = "Alarm Pagi",
-    val days: String = "Sen • Sel • Rab • Kam • Jum"
+    val days: String = "Sen • Sel • Rab • Kam • Jum",
+    val ringtone: String = "Nada 1",
 )

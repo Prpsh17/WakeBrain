@@ -59,7 +59,7 @@ import java.util.Locale
 @Composable
 fun AddEditAlarmScreen(
     alarm: Alarm?,
-    onSave: (hour: Int, minute: Int, puzzleType: String, difficulty: String, label: String, days: String) -> Unit,
+    onSave: (hour: Int, minute: Int, puzzleType: String, difficulty: String, label: String, days: String, ringtone: String) -> Unit,
     onDelete: (Alarm) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -69,8 +69,9 @@ fun AddEditAlarmScreen(
     var minute by remember { mutableIntStateOf(alarm?.minute ?: 0) }
     var isAm by remember { mutableStateOf(hour < 12) }
     var label by remember { mutableStateOf(alarm?.label ?: "Kuliah Pagi") }
-    var puzzleType by remember { mutableStateOf(alarm?.puzzleType ?: "Matematika") }
+    val puzzleType by remember { mutableStateOf(alarm?.puzzleType ?: "Matematika") }
     var difficulty by remember { mutableStateOf(alarm?.difficulty ?: "EASY") }
+    var ringtone by remember { mutableStateOf(alarm?.ringtone ?: "Nada 1") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -429,7 +430,47 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 4. Cognitive Protocol Selection
+            // 4. Ringtone Selection Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(
+                        text = "Pilih Nada Dering",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val ringtones = listOf("Nada 1", "Nada 2", "Nada 3")
+                        ringtones.forEach { sound ->
+                            val isSelected = ringtone.equals(sound, ignoreCase = true)
+                            Surface(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .clickable { ringtone = sound },
+                                shape = CircleShape,
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            ) {
+                                Text(
+                                    text = sound,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 5. Cognitive Protocol Selection
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -452,33 +493,10 @@ fun AddEditAlarmScreen(
                     }
 
                     Text(
-                        text = "Pilih tipe tantangan utama saat alarm berdering. Aplikasi secara otomatis menyajikan 2 tantangan kognitif berurutan.",
+                        text = "2 quiz acak dengan tipe berbeda (Matematika & Pengetahuan Umum) akan muncul otomatis saat alarm berbunyi.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-
-                    // Puzzle Type Chips
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        val types = listOf("Matematika", "Trivia")
-                        types.forEach { type ->
-                            val isSelected = (puzzleType.equals(type, ignoreCase = true))
-                            Surface(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable { puzzleType = type },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-                            ) {
-                                Text(
-                                    text = if (type == "Matematika") "Matematika" else "Trivia Pengetahuan",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                )
-                            }
-                        }
-                    }
 
                     // Difficulty Chips
                     Text(
@@ -516,7 +534,7 @@ fun AddEditAlarmScreen(
             Button(
                 onClick = {
                     val daysStr = if (selectedDays.isEmpty()) "Sekali Saja" else selectedDays.joinToString(" • ")
-                    onSave(hour, minute, puzzleType, difficulty, label, daysStr)
+                    onSave(hour, minute, puzzleType, difficulty, label, daysStr, ringtone)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

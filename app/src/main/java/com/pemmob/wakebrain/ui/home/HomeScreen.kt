@@ -29,9 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -80,7 +78,6 @@ fun HomeScreen(
     onEditAlarmClick: (Int) -> Unit,
     onToggleActive: (Alarm, Boolean) -> Unit,
     onTriggerAlarmSimulate: (Alarm) -> Unit,
-    onDonationClick: () -> Unit,
 ) {
     var selectedNavTab by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
@@ -106,7 +103,7 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = "Alarms",
+                            text = if (selectedNavTab == 0) "Alarms" else "Settings",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
@@ -136,8 +133,6 @@ fun HomeScreen(
             ) {
                 val navItems: List<Pair<String, ImageVector>> = listOf(
                     Pair("Alarms", Icons.Default.Alarm),
-                    Pair("Tasks", Icons.Default.Check),
-                    Pair("Routine", Icons.Default.Schedule),
                     Pair("Settings", Icons.Default.Settings),
                 )
 
@@ -235,15 +230,7 @@ fun HomeScreen(
                     }
                 }
 
-                1 -> { // TAB 2: TASKS
-                    TasksScreen()
-                }
-
-                2 -> { // TAB 3: ROUTINE
-                    RoutineScreen()
-                }
-
-                3 -> { // TAB 4: SETTINGS
+                1 -> { // TAB 2: SETTINGS
                     var isChallengeDisabled by remember { mutableStateOf(settingsManager.isChallengeDisabled) }
                     var isVibrateOnly by remember { mutableStateOf(settingsManager.isVibrateOnly) }
 
@@ -318,30 +305,6 @@ fun HomeScreen(
                             }
                         }
 
-                        // Donasi
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onDonationClick() },
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = "Donate to Admin",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Donasi",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-
                         Text(
                             text = "WakeBrain v1.0.0",
                             style = MaterialTheme.typography.labelSmall,
@@ -353,86 +316,6 @@ fun HomeScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun TasksScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerLow),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Tasks",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Fitur Tasks akan segera hadir!",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-fun RoutineScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerLow),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Schedule,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Routine",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Fitur Routine akan segera hadir!",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 
@@ -485,7 +368,7 @@ fun AlarmCardItem(
                         color = if (alarm.isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
                         fontWeight = FontWeight.SemiBold,
                     )
-                    Text(text = alarm.days, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = "${alarm.days} • ${alarm.ringtone}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Switch(
@@ -513,7 +396,7 @@ fun AlarmCardItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = "${alarm.puzzleType} • 2 Tahap",
+                            text = "2 Tahap Kuis",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold,

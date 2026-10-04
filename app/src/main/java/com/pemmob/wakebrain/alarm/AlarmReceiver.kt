@@ -16,6 +16,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val puzzleType = intent.getStringExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE) ?: "Matematika"
         val difficulty = intent.getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY"
         val label = intent.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm"
+        val ringtone = intent.getStringExtra(AlarmScheduler.EXTRA_RINGTONE) ?: "Nada 1"
 
         val launchIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -25,6 +26,7 @@ class AlarmReceiver : BroadcastReceiver() {
             putExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE, puzzleType)
             putExtra(AlarmScheduler.EXTRA_DIFFICULTY, difficulty)
             putExtra(AlarmScheduler.EXTRA_LABEL, label)
+            putExtra(AlarmScheduler.EXTRA_RINGTONE, ringtone)
         }
         context.startActivity(launchIntent)
     }

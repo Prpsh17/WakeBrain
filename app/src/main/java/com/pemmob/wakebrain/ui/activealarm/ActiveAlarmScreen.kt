@@ -64,8 +64,8 @@ fun ActiveAlarmScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    DisposableEffect(Unit) {
-        AlarmSoundPlayer.start(context)
+    DisposableEffect(alarm) {
+        AlarmSoundPlayer.start(context, alarm?.ringtone ?: "Nada 1")
         onDispose {
             AlarmSoundPlayer.stop()
         }
@@ -134,7 +134,7 @@ fun ActiveAlarmScreen(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = "Saatnya bangun • Alarm berdering",
+                text = "Saatnya bangun • ${alarm?.ringtone ?: "Nada 1"}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -43,7 +43,6 @@ import com.pemmob.wakebrain.ui.activealarm.SuccessScreen
 import com.pemmob.wakebrain.ui.alarm.AddEditAlarmScreen
 import com.pemmob.wakebrain.ui.alarm.AlarmViewModel
 import com.pemmob.wakebrain.ui.alarm.AlarmViewModelFactory
-import com.pemmob.wakebrain.ui.donation.DonationScreen
 import com.pemmob.wakebrain.ui.home.HomeScreen
 import com.pemmob.wakebrain.ui.theme.WakeBrainTheme
 import kotlinx.coroutines.delay
@@ -67,6 +66,7 @@ class MainActivity : ComponentActivity() {
         val triggerPuzzleType = intent?.getStringExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE) ?: "Matematika"
         val triggerDifficulty = intent?.getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY"
         val triggerLabel = intent?.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm Pagi"
+        val triggerRingtone = intent?.getStringExtra(AlarmScheduler.EXTRA_RINGTONE) ?: "Nada 1"
 
         val initialAlarm = if (triggerAlarmId != -1) {
             Alarm(
@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                 puzzleType = triggerPuzzleType,
                 difficulty = triggerDifficulty,
                 label = triggerLabel,
+                ringtone = triggerRingtone,
             )
         } else {
             null
@@ -159,12 +160,8 @@ fun WakeBrainApp(
         }
     }
 
-    BackHandler(enabled = (currentScreen != "HOME" && currentScreen != "DONATION")) {
-        if (currentScreen == "DONATION") {
-            currentScreen = "HOME"
-        } else if (currentScreen != "ACTIVE_ALARM") {
-            currentScreen = "HOME"
-        }
+    BackHandler(enabled = (currentScreen != "HOME" && currentScreen != "ACTIVE_ALARM")) {
+        currentScreen = "HOME"
     }
 
     when (currentScreen) {
@@ -194,17 +191,13 @@ fun WakeBrainApp(
                         currentScreen = "ACTIVE_ALARM"
                     }
                 },
-                onDonationClick = { currentScreen = "DONATION" },
             )
-        }
-        "DONATION" -> {
-            DonationScreen(onBack = { currentScreen = "HOME" })
         }
         "ADD_ALARM" -> {
             AddEditAlarmScreen(
                 alarm = null,
-                onSave = { hour, minute, puzzleType, difficulty, label, days ->
-                    alarmViewModel.addAlarm(hour, minute, puzzleType, difficulty, label, days)
+                onSave = { hour, minute, puzzleType, difficulty, label, days, ringtone ->
+                    alarmViewModel.addAlarm(hour, minute, puzzleType, difficulty, label, days, ringtone)
                     currentScreen = "HOME"
                 },
                 onDelete = {},
@@ -215,10 +208,10 @@ fun WakeBrainApp(
             val alarmToEdit = alarms.firstOrNull { it.id == selectedAlarmId }
             AddEditAlarmScreen(
                 alarm = alarmToEdit,
-                onSave = { hour, minute, puzzleType, difficulty, label, days ->
+                onSave = { hour, minute, puzzleType, difficulty, label, days, ringtone ->
                     if (alarmToEdit != null) {
                         alarmViewModel.updateAlarm(
-                            alarmToEdit.copy(hour = hour, minute = minute, puzzleType = puzzleType, difficulty = difficulty, label = label, days = days),
+                            alarmToEdit.copy(hour = hour, minute = minute, puzzleType = puzzleType, difficulty = difficulty, label = label, days = days, ringtone = ringtone),
                         )
                     }
                     currentScreen = "HOME"

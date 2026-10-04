@@ -11,12 +11,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Question::class, Alarm::class], version = 1, exportSchema = false)
+@Database(entities = [Question::class, Alarm::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun questionDao(): QuestionDao
 
-    // Tambahkan baris ini agar sistem mengenali kueri alarm
     abstract fun alarmDao(): AlarmDao
 
     companion object {
@@ -28,9 +27,10 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "wakebrain_database"
+                    "wakebrain_database",
                 )
-                    .addCallback(DatabaseCallback()) // Memanggil fungsi pre-populate
+                    .fallbackToDestructiveMigration()
+                    .addCallback(DatabaseCallback())
                     .build()
 
                 INSTANCE = instance
@@ -38,7 +38,6 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        // Fungsi Callback untuk memasukkan data saat database pertama kali dibuat
         private class DatabaseCallback : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -46,29 +45,28 @@ abstract class AppDatabase : RoomDatabase() {
                     CoroutineScope(Dispatchers.IO).launch {
                         val dao = database.questionDao()
 
-                        // Bank Soal Default yang disisipkan saat instalasi
                         val initialQuestions = listOf(
                             Question(
                                 questionText = "Apa ibu kota Australia?",
                                 optionA = "Sydney",
                                 optionB = "Canberra",
                                 optionC = "Perth",
-                                correctAnswer = "Canberra"
+                                correctAnswer = "Canberra",
                             ),
                             Question(
                                 questionText = "Berapa hasil dari 8 x 7?",
                                 optionA = "54",
                                 optionB = "56",
                                 optionC = "64",
-                                correctAnswer = "56"
+                                correctAnswer = "56",
                             ),
                             Question(
                                 questionText = "Gunung tertinggi di dunia adalah?",
                                 optionA = "Gunung Everest",
                                 optionB = "Gunung Kilimanjaro",
                                 optionC = "Gunung Fuji",
-                                correctAnswer = "Gunung Everest"
-                            )
+                                correctAnswer = "Gunung Everest",
+                            ),
                         )
                         dao.insertAll(initialQuestions)
 
@@ -81,7 +79,8 @@ abstract class AppDatabase : RoomDatabase() {
                                 puzzleType = "Matematika",
                                 difficulty = "EASY",
                                 label = "Kuliah Pagi",
-                                days = "Sen • Sel • Rab • Kam • Jum"
+                                days = "Sen • Sel • Rab • Kam • Jum",
+                                ringtone = "Nada 1",
                             ),
                             Alarm(
                                 hour = 5,
@@ -90,7 +89,8 @@ abstract class AppDatabase : RoomDatabase() {
                                 puzzleType = "Trivia",
                                 difficulty = "MEDIUM",
                                 label = "Bangun Subuh",
-                                days = "Setiap Hari (Sen - Min)"
+                                days = "Setiap Hari (Sen - Min)",
+                                ringtone = "Nada 2",
                             ),
                             Alarm(
                                 hour = 9,
@@ -99,8 +99,9 @@ abstract class AppDatabase : RoomDatabase() {
                                 puzzleType = "Matematika",
                                 difficulty = "EASY",
                                 label = "Weekend Santai",
-                                days = "Sab • Min"
-                            )
+                                days = "Sab • Min",
+                                ringtone = "Nada 3",
+                            ),
                         )
                         initialAlarms.forEach { alarmDao.insertAlarm(it) }
                     }

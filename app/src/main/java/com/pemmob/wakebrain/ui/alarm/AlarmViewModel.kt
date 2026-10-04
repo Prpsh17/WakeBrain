@@ -13,14 +13,14 @@ import kotlinx.coroutines.launch
 
 class AlarmViewModel(
     private val repository: AlarmRepository,
-    private val alarmScheduler: AlarmScheduler? = null
+    private val alarmScheduler: AlarmScheduler? = null,
 ) : ViewModel() {
 
     // Aliran daftar alarm real-time untuk LazyColumn
     val alarms: StateFlow<List<Alarm>> = repository.allAlarms.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+        initialValue = emptyList(),
     )
 
     fun toggleAlarmActive(alarm: Alarm, isActive: Boolean) {
@@ -41,7 +41,8 @@ class AlarmViewModel(
         puzzleType: String = "Matematika",
         difficulty: String = "EASY",
         label: String = "Alarm Pagi",
-        days: String = "Sen • Sel • Rab • Kam • Jum"
+        days: String = "Sen • Sel • Rab • Kam • Jum",
+        ringtone: String = "Nada 1",
     ) {
         viewModelScope.launch {
             val newAlarm = Alarm(
@@ -51,7 +52,8 @@ class AlarmViewModel(
                 puzzleType = puzzleType,
                 difficulty = difficulty,
                 label = label,
-                days = days
+                days = days,
+                ringtone = ringtone,
             )
             val generatedId = repository.insert(newAlarm)
             val scheduledAlarm = newAlarm.copy(id = generatedId.toInt())
@@ -80,7 +82,7 @@ class AlarmViewModel(
 
 class AlarmViewModelFactory(
     private val repository: AlarmRepository,
-    private val alarmScheduler: AlarmScheduler? = null
+    private val alarmScheduler: AlarmScheduler? = null,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
