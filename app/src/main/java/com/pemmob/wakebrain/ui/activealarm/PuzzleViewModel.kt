@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class PuzzleViewModel(
-    private val repository: PuzzleRepository
+    private val repository: PuzzleRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PuzzleUiState>(PuzzleUiState.Loading)
@@ -37,24 +38,12 @@ class PuzzleViewModel(
 
     private fun startStage(stage: Int) {
         currentStage = stage
-        if (stage == 1) {
-            // Tantangan 1: Matematika (atau sesuai puzzleType jika Trivia)
-            if (activePuzzleType.equals("Trivia", ignoreCase = true) ||
-                activePuzzleType.equals("Pengetahuan Umum", ignoreCase = true)
-            ) {
-                loadTriviaQuestion(stage)
-            } else {
-                loadMathQuestion(activeDifficulty, stage)
-            }
+        // Mengacak tipe kuis (Matematika atau Trivia) secara acak 50/50 untuk setiap tahap
+        val isMath = Random.nextBoolean()
+        if (isMath) {
+            loadMathQuestion(activeDifficulty, stage)
         } else {
-            // Tantangan 2: Trivia Pengetahuan Umum (atau Matematika jika sebelumnya Trivia)
-            if (activePuzzleType.equals("Trivia", ignoreCase = true) ||
-                activePuzzleType.equals("Pengetahuan Umum", ignoreCase = true)
-            ) {
-                loadMathQuestion(activeDifficulty, stage)
-            } else {
-                loadTriviaQuestion(stage)
-            }
+            loadTriviaQuestion(stage)
         }
     }
 
@@ -76,7 +65,7 @@ class PuzzleViewModel(
             stage = stage,
             totalStages = totalStages,
             isError = isError,
-            errorMessage = errorMessage
+            errorMessage = errorMessage,
         )
     }
 
@@ -103,7 +92,7 @@ class PuzzleViewModel(
                         stage = stage,
                         totalStages = totalStages,
                         isError = isError,
-                        errorMessage = errorMessage
+                        errorMessage = errorMessage,
                     )
                 } else {
                     // Fallback ke soal matematika jika bank soal kosong
@@ -125,7 +114,7 @@ class PuzzleViewModel(
                 if (parsedAnswer != null && parsedAnswer == state.problem.correctAnswer) {
                     // JAWABAN BENAR
                     if (currentStage < totalStages) {
-                        // Lanjut ke Tantangan 2
+                        // Lanjut ke Tantangan 2 (Acak lagi)
                         startStage(currentStage + 1)
                     } else {
                         // Semua tantangan selesai!
@@ -137,7 +126,7 @@ class PuzzleViewModel(
                         activeDifficulty,
                         currentStage,
                         isError = true,
-                        errorMessage = "Jawaban belum tepat, coba hitung lagi!"
+                        errorMessage = "Jawaban belum tepat, coba hitung lagi!",
                     )
                 }
             }
@@ -146,7 +135,7 @@ class PuzzleViewModel(
                 if (isCorrect) {
                     // JAWABAN BENAR
                     if (currentStage < totalStages) {
-                        // Lanjut ke Tantangan 2
+                        // Lanjut ke Tantangan 2 (Acak lagi)
                         startStage(currentStage + 1)
                     } else {
                         // Semua tantangan selesai!
@@ -157,7 +146,7 @@ class PuzzleViewModel(
                     loadTriviaQuestion(
                         currentStage,
                         isError = true,
-                        errorMessage = "Jawaban salah! Alarm masih berbunyi. Coba lagi."
+                        errorMessage = "Jawaban salah! Alarm masih berbunyi. Coba lagi.",
                     )
                 }
             }
@@ -172,7 +161,7 @@ class PuzzleViewModel(
  * Factory untuk inisialisasi PuzzleViewModel dengan parameter PuzzleRepository
  */
 class PuzzleViewModelFactory(
-    private val repository: PuzzleRepository
+    private val repository: PuzzleRepository,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
