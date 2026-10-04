@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -52,7 +53,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
 import com.pemmob.wakebrain.data.model.Alarm
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +77,13 @@ fun AddEditAlarmScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        onDispose {
+            AlarmSoundPlayer.stop()
+        }
+    }
+
     val timePickerDialog = TimePickerDialog(
         context,
         { _, selectedHour, selectedMinute ->
@@ -154,7 +164,12 @@ fun AddEditAlarmScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(
+                        onClick = {
+                            AlarmSoundPlayer.stop()
+                            onBack()
+                        },
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Kembali",
@@ -449,7 +464,10 @@ fun AddEditAlarmScreen(
                             Surface(
                                 modifier = Modifier
                                     .clip(CircleShape)
-                                    .clickable { ringtone = sound },
+                                    .clickable {
+                                        ringtone = sound
+                                        AlarmSoundPlayer.playSample(context, sound)
+                                    },
                                 shape = CircleShape,
                                 color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
@@ -529,6 +547,7 @@ fun AddEditAlarmScreen(
             // Action Buttons
             Button(
                 onClick = {
+                    AlarmSoundPlayer.stop()
                     val daysStr = if (selectedDays.isEmpty()) "Sekali Saja" else selectedDays.joinToString(" • ")
                     onSave(hour, minute, puzzleType, difficulty, label, daysStr, ringtone)
                 },

@@ -94,6 +94,61 @@ object AlarmSoundPlayer {
     }
 
     /**
+     * Memutar sampel sampel/pratinjau nada dering (saat tombol chip diketuk pada AddEditAlarmScreen).
+     */
+    fun playSample(context: Context, ringtoneName: String) {
+        stop()
+        val settingsManager = SettingsManager(context)
+        if (settingsManager.isVibrateOnly) return
+
+        try {
+            when (ringtoneName.lowercase()) {
+                "nada 2", "nada energetik" -> {
+                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(context, alarmUri)
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build(),
+                        )
+                        isLooping = false
+                        prepare()
+                        start()
+                    }
+                }
+                "nada 3", "nada nyaring" -> {
+                    val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(context, ringtoneUri)
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build(),
+                        )
+                        isLooping = false
+                        prepare()
+                        start()
+                    }
+                }
+                else -> {
+                    // Nada 1: Custom MP3
+                    mediaPlayer = MediaPlayer.create(context, R.raw.alarm_sound)?.apply {
+                        isLooping = false
+                        start()
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            mediaPlayer = null
+        }
+    }
+
+    /**
      * Menghentikan pemutaran nada dering dan melepas resource MediaPlayer.
      */
     fun stop() {
