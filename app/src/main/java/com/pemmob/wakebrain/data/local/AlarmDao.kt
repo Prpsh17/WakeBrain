@@ -14,6 +14,12 @@ interface AlarmDao {
     @Query("SELECT * FROM alarms ORDER BY hour ASC, minute ASC")
     fun getAllAlarms(): Flow<List<Alarm>>
 
+    @Query("SELECT * FROM alarms WHERE isActive = 1")
+    suspend fun getActiveAlarms(): List<Alarm>
+
+    @Query("UPDATE alarms SET isActive = 0 WHERE id = :alarmId")
+    suspend fun deactivateAlarm(alarmId: Int): Int
+
     @Insert
     suspend fun insertAlarm(alarm: Alarm): Long
 

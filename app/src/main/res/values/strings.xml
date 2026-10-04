@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WakeBrain</string>
+    <string name="alarm_channel_name">Alarm aktif</string>
+    <string name="alarm_channel_description">Alarm WakeBrain yang sedang berdering</string>
+    <string name="alarm_notification_title">WakeBrain berdering</string>
+    <string name="alarm_notification_text">Ketuk untuk menyelesaikan tantangan dan mematikan alarm</string>
 </resources>

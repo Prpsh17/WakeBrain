@@ -30,4 +30,8 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         context.startActivity(launchIntent)
     }
+
+    companion object {
+        private const val TAG = "WakeBrainAlarmReceiver"
+    }
 }

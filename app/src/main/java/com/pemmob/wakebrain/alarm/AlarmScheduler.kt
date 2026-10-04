@@ -27,6 +27,7 @@ class AlarmScheduler(private val context: Context) {
             putExtra(EXTRA_PUZZLE_TYPE, alarm.puzzleType)
             putExtra(EXTRA_DIFFICULTY, alarm.difficulty)
             putExtra(EXTRA_LABEL, alarm.label)
+            putExtra(EXTRA_DAYS, alarm.days)
             putExtra(EXTRA_RINGTONE, alarm.ringtone)
         }
 
@@ -81,6 +82,8 @@ class AlarmScheduler(private val context: Context) {
         const val EXTRA_PUZZLE_TYPE = "EXTRA_PUZZLE_TYPE"
         const val EXTRA_DIFFICULTY = "EXTRA_DIFFICULTY"
         const val EXTRA_LABEL = "EXTRA_LABEL"
+        const val EXTRA_DAYS = "EXTRA_DAYS"
+        const val EXTRA_TRIGGER_AT = "EXTRA_TRIGGER_AT"
         const val EXTRA_RINGTONE = "EXTRA_RINGTONE"
     }
 }

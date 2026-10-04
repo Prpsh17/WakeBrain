@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
 import com.pemmob.wakebrain.data.model.Alarm
-import java.util.Locale
 
 @Composable
 fun ActiveAlarmScreen(
@@ -120,7 +119,11 @@ fun ActiveAlarmScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Large Ringing Core Time Readout
-        val timeString = if (alarm != null) String.format(Locale.getDefault(), "%02d:%02d", alarm.hour, alarm.minute) else "07:00"
+        val timeString = if (alarm != null) {
+            "${alarm.hour.toString().padStart(2, '0')}:${alarm.minute.toString().padStart(2, '0')}"
+        } else {
+            "07:00"
+        }
         Text(
             text = timeString,
             style = MaterialTheme.typography.displayLarge,
