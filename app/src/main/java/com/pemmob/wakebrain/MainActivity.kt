@@ -109,7 +109,7 @@ fun WakeBrainApp(
     LaunchedEffect(triggeredAlarm) {
         if (triggeredAlarm != null) {
             activeAlarm = triggeredAlarm
-            puzzleViewModel.loadPuzzle(triggeredAlarm.difficulty)
+            puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
             currentScreen = "ACTIVE_ALARM"
         }
     }
@@ -148,7 +148,7 @@ fun WakeBrainApp(
                 },
                 onTriggerAlarmSimulate = { alarm ->
                     activeAlarm = alarm
-                    puzzleViewModel.loadPuzzle(alarm.difficulty)
+                    puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
                     currentScreen = "ACTIVE_ALARM"
                 },
             )

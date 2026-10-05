@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Question::class, Alarm::class], version = 2, exportSchema = false)
+@Database(entities = [Question::class, Alarm::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun questionDao(): QuestionDao
@@ -43,6 +43,23 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 INSTANCE?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
+                        val dao = database.questionDao()
+
+                        val initialQuestions = listOf(
+                            Question(questionText = "Mata uang negara Jepang adalah?", optionA = "Yen", optionB = "Won", optionC = "Yuan", correctAnswer = "Yen", difficulty = "EASY"),
+                            Question(questionText = "Lagu kebangsaan Indonesia adalah?", optionA = "Indonesia Raya", optionB = "Garuda Pancasila", optionC = "Rayuan Pulau Kelapa", correctAnswer = "Indonesia Raya", difficulty = "EASY"),
+                            Question(questionText = "Warna bendera negara Indonesia adalah?", optionA = "Merah Putih", optionB = "Putih Merah", optionC = "Merah Biru", correctAnswer = "Merah Putih", difficulty = "EASY"),
+
+                            Question(questionText = "Planet terbesar di tata surya kita adalah?", optionA = "Mars", optionB = "Yupiter", optionC = "Saturnus", correctAnswer = "Yupiter", difficulty = "MEDIUM"),
+                            Question(questionText = "Candi Borobudur terletak di provinsi?", optionA = "Jawa Barat", optionB = "Jawa Tengah", optionC = "Jawa Timur", correctAnswer = "Jawa Tengah", difficulty = "MEDIUM"),
+                            Question(questionText = "Simbol matematika untuk perkalian adalah?", optionA = "+", optionB = "×", optionC = "÷", correctAnswer = "×", difficulty = "MEDIUM"),
+
+                            Question(questionText = "Apa ibu kota Australia?", optionA = "Sydney", optionB = "Canberra", optionC = "Perth", correctAnswer = "Canberra", difficulty = "HARD"),
+                            Question(questionText = "Gunung tertinggi di dunia adalah?", optionA = "Gunung Everest", optionB = "Gunung Kilimanjaro", optionC = "Gunung Fuji", correctAnswer = "Gunung Everest", difficulty = "HARD"),
+                            Question(questionText = "Unsur kimia dengan lambang 'Au' adalah?", optionA = "Perak", optionB = "Emas", optionC = "Tembaga", correctAnswer = "Emas", difficulty = "HARD"),
+                        )
+                        dao.insertAll(initialQuestions)
+
                         val alarmDao = database.alarmDao()
                         val initialAlarms = listOf(
                             Alarm(
