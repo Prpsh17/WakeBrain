@@ -9,16 +9,10 @@ class PuzzleRepository(
     private val questionDao: QuestionDao,
     private val mathGenerator: MathGenerator = MathGenerator(),
 ) {
-    /**
-     * Mengambil 1 soal matematika acak dari generator lokal
-     */
     fun getMathProblem(difficulty: String = "EASY"): MathProblem {
         return mathGenerator.generate(difficulty)
     }
 
-    /**
-     * Mengambil 1 soal trivia acak dari Room Database (dengan auto-seeding jika kosong)
-     */
     suspend fun getRandomTrivia(): Question? {
         if (questionDao.getCount() == 0) {
             val defaultQuestions = listOf(

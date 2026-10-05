@@ -16,7 +16,6 @@ class AlarmViewModel(
     private val alarmScheduler: AlarmScheduler? = null,
 ) : ViewModel() {
 
-    // Aliran daftar alarm real-time untuk LazyColumn
     val alarms: StateFlow<List<Alarm>> = repository.allAlarms.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

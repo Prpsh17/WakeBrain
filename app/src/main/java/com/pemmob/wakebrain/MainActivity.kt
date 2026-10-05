@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pemmob.wakebrain.alarm.AlarmScheduler
+import com.pemmob.wakebrain.alarm.alarmOrNull
 import com.pemmob.wakebrain.data.local.AppDatabase
 import com.pemmob.wakebrain.data.model.Alarm
 import com.pemmob.wakebrain.data.repository.AlarmRepository
@@ -57,28 +58,7 @@ class MainActivity : ComponentActivity() {
         val puzzleRepository = PuzzleRepository(database.questionDao())
         alarmScheduler = AlarmScheduler(applicationContext)
 
-        val triggerAlarmId = intent?.getIntExtra(AlarmScheduler.EXTRA_ALARM_ID, -1) ?: -1
-        val triggerHour = intent?.getIntExtra(AlarmScheduler.EXTRA_HOUR, 7) ?: 7
-        val triggerMinute = intent?.getIntExtra(AlarmScheduler.EXTRA_MINUTE, 0) ?: 0
-        val triggerPuzzleType = intent?.getStringExtra(AlarmScheduler.EXTRA_PUZZLE_TYPE) ?: "Matematika"
-        val triggerDifficulty = intent?.getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY"
-        val triggerLabel = intent?.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm Pagi"
-        val triggerRingtone = intent?.getStringExtra(AlarmScheduler.EXTRA_RINGTONE) ?: "Nada 1"
-
-        val initialAlarm = if (triggerAlarmId != -1) {
-            Alarm(
-                id = triggerAlarmId,
-                hour = triggerHour,
-                minute = triggerMinute,
-                isActive = true,
-                puzzleType = triggerPuzzleType,
-                difficulty = triggerDifficulty,
-                label = triggerLabel,
-                ringtone = triggerRingtone,
-            )
-        } else {
-            null
-        }
+        val initialAlarm = intent?.alarmOrNull()
 
         setContent {
             var isDarkMode by rememberSaveable { mutableStateOf(true) }
@@ -129,7 +109,7 @@ fun WakeBrainApp(
     LaunchedEffect(triggeredAlarm) {
         if (triggeredAlarm != null) {
             activeAlarm = triggeredAlarm
-            puzzleViewModel.loadPuzzle(triggeredAlarm.puzzleType, triggeredAlarm.difficulty)
+            puzzleViewModel.loadPuzzle(triggeredAlarm.difficulty)
             currentScreen = "ACTIVE_ALARM"
         }
     }
@@ -168,7 +148,7 @@ fun WakeBrainApp(
                 },
                 onTriggerAlarmSimulate = { alarm ->
                     activeAlarm = alarm
-                    puzzleViewModel.loadPuzzle(alarm.puzzleType, alarm.difficulty)
+                    puzzleViewModel.loadPuzzle(alarm.difficulty)
                     currentScreen = "ACTIVE_ALARM"
                 },
             )

@@ -162,7 +162,7 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.surface),
         ) {
             when (selectedNavTab) {
-                0 -> { // TAB 1: ALARMS
+                0 -> {
                     val activeAlarms = alarms.filter { it.isActive }
                     val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
                         while (true) {
@@ -244,7 +244,7 @@ fun HomeScreen(
                     }
                 }
 
-                1 -> { // TAB 2: SETTINGS
+                1 -> {
                     var isVibrateOnly by remember { mutableStateOf(settingsManager.isVibrateOnly) }
 
                     Column(
@@ -258,7 +258,6 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
 
-                        // Tema
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -274,7 +273,6 @@ fun HomeScreen(
                             }
                         }
 
-                        // Hanya Getar
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Row(
                                 modifier = Modifier.padding(16.dp).fillMaxWidth(),

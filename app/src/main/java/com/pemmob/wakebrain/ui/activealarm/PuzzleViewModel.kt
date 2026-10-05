@@ -17,18 +17,11 @@ class PuzzleViewModel(
     private val _uiState = MutableStateFlow<PuzzleUiState>(PuzzleUiState.Loading)
     val uiState: StateFlow<PuzzleUiState> = _uiState.asStateFlow()
 
-    private var activePuzzleType: String = "Matematika"
     private var activeDifficulty: String = "EASY"
     private var currentStage: Int = 1
     private val totalStages: Int = 2
 
-    /**
-     * Memuat tantangan baru sesuai konfigurasi alarm
-     * @param puzzleType "Matematika" atau "Trivia"
-     * @param difficulty "EASY", "MEDIUM", atau "HARD"
-     */
-    fun loadPuzzle(puzzleType: String = "Matematika", difficulty: String = "EASY") {
-        activePuzzleType = puzzleType
+    fun loadPuzzle(difficulty: String = "EASY") {
         activeDifficulty = difficulty
         currentStage = 1
         _uiState.value = PuzzleUiState.Loading
@@ -38,7 +31,7 @@ class PuzzleViewModel(
 
     private fun startStage(stage: Int) {
         currentStage = stage
-        // Mengacak tipe kuis (Matematika atau Trivia) secara acak 50/50 untuk setiap tahap
+        // Jenis soal dipilih ulang pada setiap tahap.
         val isMath = Random.nextBoolean()
         if (isMath) {
             loadMathQuestion(activeDifficulty, stage)
@@ -51,7 +44,7 @@ class PuzzleViewModel(
         val currentProblem = (_uiState.value as? PuzzleUiState.MathActive)?.problem
         var newProblem = repository.getMathProblem(difficulty)
 
-        // Jika ganti soal karena salah, jamin soal baru berbeda dengan soal sebelumnya
+        // Jangan langsung mengulang soal yang baru saja dijawab salah.
         if (isError && currentProblem != null) {
             var attempts = 0
             while (newProblem.questionText == currentProblem.questionText && attempts < 10) {
@@ -75,7 +68,7 @@ class PuzzleViewModel(
                 val currentQuestion = (_uiState.value as? PuzzleUiState.TriviaActive)?.question
                 var trivia = repository.getRandomTrivia()
 
-                // Jika ganti soal trivia karena salah, cari soal lain yang berbeda
+                // Jangan langsung mengulang pertanyaan yang baru saja dijawab salah.
                 if (isError && currentQuestion != null) {
                     var attempts = 0
                     while (trivia != null && trivia.id == currentQuestion.id && attempts < 10) {
@@ -95,7 +88,6 @@ class PuzzleViewModel(
                         errorMessage = errorMessage,
                     )
                 } else {
-                    // Fallback ke soal matematika jika bank soal kosong
                     loadMathQuestion("EASY", stage, isError, errorMessage ?: "Bank soal trivia kosong. Beralih ke Matematika.")
                 }
             } catch (e: Exception) {
@@ -104,24 +96,17 @@ class PuzzleViewModel(
         }
     }
 
-    /**
-     * Memverifikasi jawaban pengguna
-     */
     fun submitAnswer(userAnswer: String) {
         when (val state = _uiState.value) {
             is PuzzleUiState.MathActive -> {
                 val parsedAnswer = userAnswer.trim().toIntOrNull()
                 if (parsedAnswer != null && parsedAnswer == state.problem.correctAnswer) {
-                    // JAWABAN BENAR
                     if (currentStage < totalStages) {
-                        // Lanjut ke Tantangan 2 (Acak lagi)
                         startStage(currentStage + 1)
                     } else {
-                        // Semua tantangan selesai!
                         _uiState.value = PuzzleUiState.Solved
                     }
                 } else {
-                    // JAWABAN SALAH: Beri pesan error dan ganti ke soal baru yang berbeda
                     loadMathQuestion(
                         activeDifficulty,
                         currentStage,
@@ -133,16 +118,12 @@ class PuzzleViewModel(
             is PuzzleUiState.TriviaActive -> {
                 val isCorrect = userAnswer.trim().equals(state.question.correctAnswer.trim(), ignoreCase = true)
                 if (isCorrect) {
-                    // JAWABAN BENAR
                     if (currentStage < totalStages) {
-                        // Lanjut ke Tantangan 2 (Acak lagi)
                         startStage(currentStage + 1)
                     } else {
-                        // Semua tantangan selesai!
                         _uiState.value = PuzzleUiState.Solved
                     }
                 } else {
-                    // JAWABAN SALAH: Tampilkan error & ganti ke soal trivia baru
                     loadTriviaQuestion(
                         currentStage,
                         isError = true,
@@ -150,16 +131,11 @@ class PuzzleViewModel(
                     )
                 }
             }
-            else -> {
-                // State lain diabaikan
-            }
+            else -> {}
         }
     }
 }
 
-/**
- * Factory untuk inisialisasi PuzzleViewModel dengan parameter PuzzleRepository
- */
 class PuzzleViewModelFactory(
     private val repository: PuzzleRepository,
 ) : ViewModelProvider.Factory {

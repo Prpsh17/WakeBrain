@@ -11,6 +11,7 @@ fun Intent.putAlarm(alarm: Alarm, triggerAtMillis: Long = System.currentTimeMill
     putExtra(AlarmScheduler.EXTRA_DIFFICULTY, alarm.difficulty)
     putExtra(AlarmScheduler.EXTRA_LABEL, alarm.label)
     putExtra(AlarmScheduler.EXTRA_DAYS, alarm.days)
+    putExtra(AlarmScheduler.EXTRA_RINGTONE, alarm.ringtone)
     putExtra(AlarmScheduler.EXTRA_TRIGGER_AT, triggerAtMillis)
 }
 
@@ -27,5 +28,6 @@ fun Intent.alarmOrNull(): Alarm? {
         difficulty = getStringExtra(AlarmScheduler.EXTRA_DIFFICULTY) ?: "EASY",
         label = getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Alarm",
         days = getStringExtra(AlarmScheduler.EXTRA_DAYS) ?: "Sekali Saja",
+        ringtone = getStringExtra(AlarmScheduler.EXTRA_RINGTONE) ?: "Nada 1",
     )
 }

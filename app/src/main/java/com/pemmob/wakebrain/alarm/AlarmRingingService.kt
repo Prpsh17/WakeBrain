@@ -42,7 +42,7 @@ class AlarmRingingService : Service() {
         )
         Log.i(TAG, "Foreground alarm started: id=${alarm.id}, label=${alarm.label}")
         acquireWakeLock()
-        AlarmSoundPlayer.start(applicationContext)
+        AlarmSoundPlayer.start(applicationContext, alarm.ringtone)
         AlarmVibrationPlayer.start(applicationContext)
         return START_REDELIVER_INTENT
     }

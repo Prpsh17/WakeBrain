@@ -1,7 +1,6 @@
 package com.pemmob.wakebrain.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,23 +9,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// PASTIKAN WARNA UNGU INI YANG DIPAKAI
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF8B5CF6),        // UNGU PRIMARY
+    primary = Color(0xFF8B5CF6),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFA78BFA), // UNGU MUDA
+    primaryContainer = Color(0xFFA78BFA),
     onPrimaryContainer = Color(0xFF4C1D95),
 
-    secondary = Color(0xFF6366F1),      // UNGU SECONDARY
+    secondary = Color(0xFF6366F1),
     onSecondary = Color.White,
     secondaryContainer = Color(0xFF818CF8),
     onSecondaryContainer = Color(0xFF312E81),
 
-    tertiary = Color(0xFFA78BFA),       // UNGU TERTIARY
+    tertiary = Color(0xFFA78BFA),
     onTertiary = Color.White,
     tertiaryContainer = Color(0xFFC4B5FD),
     onTertiaryContainer = Color(0xFF5B21B6),
@@ -47,17 +44,17 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF8B5CF6),        // UNGU PRIMARY
+    primary = Color(0xFF8B5CF6),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFA78BFA),
     onPrimaryContainer = Color(0xFF5B21B6),
 
-    secondary = Color(0xFF6366F1),      // UNGU SECONDARY
+    secondary = Color(0xFF6366F1),
     onSecondary = Color.White,
     secondaryContainer = Color(0xFF818CF8),
     onSecondaryContainer = Color(0xFF3730A3),
 
-    tertiary = Color(0xFFA78BFA),       // UNGU TERTIARY
+    tertiary = Color(0xFFA78BFA),
     onTertiary = Color.White,
     tertiaryContainer = Color(0xFFC4B5FD),
     onTertiaryContainer = Color(0xFF6D28D9),
@@ -80,19 +77,9 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun WakeBrainTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // ⚠️ PENTING: dynamicColor = false agar warna TIDAK berubah sesuai wallpaper
-    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        // Dynamic color DIMATIKAN untuk memastikan warna ungu tetap ungu
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) darkColorScheme() else lightColorScheme()
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {

@@ -31,7 +31,7 @@ class AlarmScheduleCalculatorTest {
 
     @Test
     fun weekdayAlarmSkipsWeekend() {
-        // 3 October 2026 is Saturday.
+        // 3 Oktober 2026 jatuh pada hari Sabtu.
         val now = dateTime(2026, 10, 3, 8, 0)
         val alarm = alarm(hour = 7, minute = 0, days = "Sen • Sel • Rab • Kam • Jum")
 

@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pemmob.wakebrain.alarm.AlarmSoundPlayer
+import com.pemmob.wakebrain.alarm.AlarmRingingService
 import com.pemmob.wakebrain.data.model.Alarm
 
 @Composable
@@ -66,6 +67,7 @@ fun ActiveAlarmScreen(
     DisposableEffect(alarm) {
         AlarmSoundPlayer.start(context, alarm?.ringtone ?: "Nada 1")
         onDispose {
+            AlarmRingingService.stop(context)
             AlarmSoundPlayer.stop()
         }
     }
@@ -78,7 +80,6 @@ fun ActiveAlarmScreen(
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 1. Dynamic Audio Ringing Ambient Header
         val transition = rememberInfiniteTransition(label = "pulse")
         val pulseAlpha by transition.animateFloat(
             initialValue = 0.5f,
@@ -90,7 +91,6 @@ fun ActiveAlarmScreen(
             label = "pulseAlpha",
         )
 
-        // Status Badge: WAKE UP!
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f),
@@ -118,7 +118,6 @@ fun ActiveAlarmScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Large Ringing Core Time Readout
         val timeString = if (alarm != null) {
             "${alarm.hour.toString().padStart(2, '0')}:${alarm.minute.toString().padStart(2, '0')}"
         } else {
@@ -145,7 +144,6 @@ fun ActiveAlarmScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 2. Quiz Stepper Progress Tracker
         val stage = when (uiState) {
             is PuzzleUiState.MathActive -> uiState.stage
             is PuzzleUiState.TriviaActive -> uiState.stage
@@ -165,7 +163,6 @@ fun ActiveAlarmScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                // Circle 1
                 Box(
                     modifier = Modifier
                         .size(16.dp)
@@ -183,7 +180,6 @@ fun ActiveAlarmScreen(
                     }
                 }
 
-                // Connector bar
                 Box(
                     modifier = Modifier
                         .width(36.dp)
@@ -192,7 +188,6 @@ fun ActiveAlarmScreen(
                         .background(if (stage > 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh),
                 )
 
-                // Circle 2
                 Box(
                     modifier = Modifier
                         .size(16.dp)
@@ -227,7 +222,6 @@ fun ActiveAlarmScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 3. Cognitive Challenge Card
         when (uiState) {
             is PuzzleUiState.Loading -> {
                 Box(
@@ -259,13 +253,12 @@ fun ActiveAlarmScreen(
                 )
             }
             is PuzzleUiState.Solved -> {
-                // Handled in MainActivity navigation
+                // Perpindahan layar ditangani oleh MainActivity.
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 4. Anti-Snooze & Discipline Notice Footer
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -310,7 +303,6 @@ fun MathChallengeView(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Header badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -337,7 +329,6 @@ fun MathChallengeView(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Math Expression
             Text(
                 text = state.problem.questionText,
                 style = MaterialTheme.typography.displayMedium,
@@ -348,7 +339,6 @@ fun MathChallengeView(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Input Display Box
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -374,7 +364,6 @@ fun MathChallengeView(
                                 fontWeight = FontWeight.Bold,
                                 color = if (state.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                             )
-                            // Blinking cursor
                             val transition = rememberInfiniteTransition(label = "cursor")
                             val cursorAlpha by transition.animateFloat(
                                 initialValue = 0f,
@@ -398,7 +387,6 @@ fun MathChallengeView(
                 }
             }
 
-            // Error feedback
             AnimatedVisibility(visible = state.isError) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -415,7 +403,6 @@ fun MathChallengeView(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Numpad Grid (1-9, C, 0, Backspace)
             val numpadRows = listOf(
                 listOf("1", "2", "3"),
                 listOf("4", "5", "6"),
@@ -472,7 +459,6 @@ fun MathChallengeView(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Submit Button
             Button(
                 onClick = { onSubmit(typedValue) },
                 enabled = typedValue.isNotBlank(),
@@ -513,7 +499,6 @@ fun TriviaChallengeView(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Header Category Badge
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -530,7 +515,6 @@ fun TriviaChallengeView(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Question Text
             Text(
                 text = state.question.questionText,
                 style = MaterialTheme.typography.headlineSmall,
@@ -541,7 +525,6 @@ fun TriviaChallengeView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Options list (A, B, C)
             val labels = listOf("A", "B", "C")
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -604,7 +587,6 @@ fun TriviaChallengeView(
                 }
             }
 
-            // Error feedback
             AnimatedVisibility(visible = state.isError) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -621,7 +603,6 @@ fun TriviaChallengeView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Submit Button
             Button(
                 onClick = {
                     selectedOption?.let { onSubmit(it) }

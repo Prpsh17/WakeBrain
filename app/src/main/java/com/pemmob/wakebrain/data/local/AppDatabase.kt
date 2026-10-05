@@ -43,33 +43,6 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 INSTANCE?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        val dao = database.questionDao()
-
-                        val initialQuestions = listOf(
-                            Question(
-                                questionText = "Apa ibu kota Australia?",
-                                optionA = "Sydney",
-                                optionB = "Canberra",
-                                optionC = "Perth",
-                                correctAnswer = "Canberra",
-                            ),
-                            Question(
-                                questionText = "Berapa hasil dari 8 x 7?",
-                                optionA = "54",
-                                optionB = "56",
-                                optionC = "64",
-                                correctAnswer = "56",
-                            ),
-                            Question(
-                                questionText = "Gunung tertinggi di dunia adalah?",
-                                optionA = "Gunung Everest",
-                                optionB = "Gunung Kilimanjaro",
-                                optionC = "Gunung Fuji",
-                                correctAnswer = "Gunung Everest",
-                            ),
-                        )
-                        dao.insertAll(initialQuestions)
-
                         val alarmDao = database.alarmDao()
                         val initialAlarms = listOf(
                             Alarm(

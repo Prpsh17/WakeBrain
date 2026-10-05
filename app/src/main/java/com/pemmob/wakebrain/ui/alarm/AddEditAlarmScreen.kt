@@ -202,7 +202,6 @@ fun AddEditAlarmScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // Ambient Sleep Inertia Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -231,7 +230,6 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 1. Time Picker Display Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -306,7 +304,6 @@ fun AddEditAlarmScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Big Hour : Minute Display (Clickable)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -354,7 +351,6 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 2. Alarm Label Input
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -382,7 +378,6 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 3. Repeat Days Matrix
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -441,7 +436,6 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 4. Ringtone Selection Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -484,7 +478,6 @@ fun AddEditAlarmScreen(
                 }
             }
 
-            // 5. Cognitive Protocol Selection
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -512,7 +505,6 @@ fun AddEditAlarmScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    // Difficulty Chips
                     Text(
                         text = "Tingkat Kesulitan:",
                         style = MaterialTheme.typography.labelSmall,
@@ -544,7 +536,6 @@ fun AddEditAlarmScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Action Buttons
             Button(
                 onClick = {
                     AlarmSoundPlayer.stop()

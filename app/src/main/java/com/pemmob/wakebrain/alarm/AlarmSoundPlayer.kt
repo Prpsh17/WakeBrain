@@ -7,9 +7,6 @@ import android.media.RingtoneManager
 import com.pemmob.wakebrain.R
 import com.pemmob.wakebrain.data.local.SettingsManager
 
-/**
- * Pemutar media audio nada dering alarm berbasis MediaPlayer.
- */
 object AlarmSoundPlayer {
     private var mediaPlayer: MediaPlayer? = null
 
@@ -17,13 +14,10 @@ object AlarmSoundPlayer {
         return when (ringtoneName.lowercase()) {
             "nada 2", "nada pasha", "alarm pasha", "pasha" -> R.raw.alarm_pasha
             "nada 3", "nada pikri", "alarm pikri", "pikri" -> R.raw.alarm_pikri
-            else -> R.raw.alarm_adit // Nada 1 / Nada Adit
+            else -> R.raw.alarm_adit
         }
     }
 
-    /**
-     * Memulai pemutaran nada dering MP3 berdasarkan pilihan nada.
-     */
     fun start(context: Context, ringtoneName: String = "Nada 1") {
         val settingsManager = SettingsManager(context)
         if (settingsManager.isVibrateOnly) return
@@ -63,9 +57,6 @@ object AlarmSoundPlayer {
         }
     }
 
-    /**
-     * Memutar pratinjau/sampel nada dering saat diketuk.
-     */
     fun playSample(context: Context, ringtoneName: String) {
         stop()
         val settingsManager = SettingsManager(context)
@@ -83,9 +74,6 @@ object AlarmSoundPlayer {
         }
     }
 
-    /**
-     * Menghentikan pemutaran nada dering dan melepas resource MediaPlayer.
-     */
     fun stop() {
         try {
             mediaPlayer?.stop()

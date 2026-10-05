@@ -46,7 +46,6 @@ fun SuccessScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // Celebration Badge
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -82,7 +81,6 @@ fun SuccessScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Time and Streak Badge
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -103,7 +101,6 @@ fun SuccessScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Morning Momentum Suggestion Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
@@ -134,7 +131,6 @@ fun SuccessScreen(
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // Primary Action Button
         Button(
             onClick = onFinish,
             modifier = Modifier

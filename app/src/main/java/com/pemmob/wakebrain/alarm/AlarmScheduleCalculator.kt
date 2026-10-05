@@ -5,7 +5,6 @@ import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
 
-/** Pure date/time calculation used by [AlarmScheduler] and unit tests. */
 object AlarmScheduleCalculator {
     private val dayTokens = linkedMapOf(
         "Sen" to DayOfWeek.MONDAY,
@@ -54,7 +53,7 @@ object AlarmScheduleCalculator {
             }
         }
 
-        // Defensive fallback for malformed legacy day values: schedule tomorrow.
+        // Data lama bisa berisi format hari yang tidak dikenal. Dalam kasus itu, jadwalkan besok.
         return now.toLocalDate()
             .plusDays(1)
             .atTime(alarm.hour, alarm.minute)
